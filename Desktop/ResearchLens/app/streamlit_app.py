@@ -15,293 +15,355 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
-html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+html, body, [class*="css"] {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background-color: #F7F4EF;
+}
 
-.stApp { background-color: #0A0F1E; color: #E2E8F0; }
+.stApp { background-color: #F7F4EF; }
 
 section[data-testid="stSidebar"] {
-    background-color: #0D1220;
-    border-right: 1px solid #1E293B;
+    background-color: #EDE8DF;
+    border-right: 1px solid #C8BBA8;
 }
 
-.main-title {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: #F8FAFC;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-    margin-bottom: 0.15rem;
+.masthead {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1A1208;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
 }
 
-.main-sub {
-    font-size: 0.78rem;
-    color: #475569;
-    margin-bottom: 1.5rem;
-    font-weight: 400;
+.vol-line {
+    font-size: 0.62rem;
+    color: #8B7355;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+}
+
+.rule-double {
+    border-top: 2.5px solid #1A1208;
+    border-bottom: 1px solid #1A1208;
+    height: 4px;
+    margin: 0.5rem 0 1.2rem;
+}
+
+.rule-single {
+    border-top: 1px solid #C8BBA8;
+    margin: 1rem 0;
 }
 
 .section-label {
-    font-size: 0.65rem;
-    font-weight: 600;
-    color: #475569;
+    font-size: 0.6rem;
+    color: #8B7355;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 0.5rem;
-    margin-top: 1.2rem;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 .query-display {
-    font-size: 1.05rem;
-    color: #F1F5F9;
-    font-weight: 500;
-    margin-bottom: 0.4rem;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.2rem;
+    font-style: italic;
+    color: #1A1208;
+    margin-bottom: 0.3rem;
 }
 
 .type-badge {
     display: inline-block;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    padding: 0.18rem 0.55rem;
-    border-radius: 3px;
-    font-weight: 500;
+    font-size: 0.62rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 2px;
+    border: 1px solid #C8BBA8;
+    color: #5C4A35;
+    background: #EDE8DF;
     margin-right: 0.4rem;
+    font-style: normal;
 }
 
 .router-note {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.72rem;
-    color: #475569;
-    margin: 0.6rem 0 1.2rem;
+    font-size: 0.68rem;
+    color: #8B7355;
+    margin: 0.4rem 0 1rem;
 }
 
-.confidence-bar-wrap {
-    background: #1E293B;
-    border-radius: 6px;
-    padding: 0.7rem 1rem;
-    margin-bottom: 1.2rem;
+.confidence-row {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.8rem;
+    background: white;
+    border: 1px solid #C8BBA8;
+    padding: 0.5rem 0.8rem;
+    margin-bottom: 1.2rem;
 }
 
 .chunk-card {
-    background: #111827;
-    border: 1px solid #1E293B;
-    border-radius: 6px;
-    padding: 0.9rem 1rem;
-    margin-bottom: 0.7rem;
+    background: white;
+    border: 1px solid #C8BBA8;
+    border-left: 3px solid #1A1208;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.8rem;
 }
 
-.chunk-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
+.chunk-card-secondary {
+    border-left-color: #8B7355;
 }
 
-.chunk-title {
-    font-size: 0.72rem;
-    color: #60A5FA;
-    font-family: 'JetBrains Mono', monospace;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 75%;
+.chunk-paper {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 0.78rem;
+    font-style: italic;
+    color: #4A3728;
+    margin-bottom: 0.3rem;
 }
 
 .chunk-score {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.68rem;
-    padding: 0.12rem 0.45rem;
-    border-radius: 3px;
+    font-size: 0.65rem;
+    color: #8B7355;
 }
 
 .chunk-text {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.74rem;
-    color: #94A3B8;
-    line-height: 1.65;
-    border-left: 2px solid #1E40AF;
-    padding-left: 0.7rem;
+    font-size: 0.82rem;
+    color: #3D2E1E;
+    line-height: 1.7;
+    margin-top: 0.4rem;
 }
 
-.col-label {
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: #334155;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 0.7rem;
-    padding-bottom: 0.4rem;
-    border-bottom: 1px solid #1E293B;
+.col-header {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1A1208;
+    border-bottom: 2px solid #1A1208;
+    padding-bottom: 0.3rem;
+    margin-bottom: 0.8rem;
 }
 
-.stats-row {
+.stats-strip {
     display: flex;
-    gap: 1rem;
+    gap: 0;
+    border: 1px solid #C8BBA8;
+    background: white;
     margin-bottom: 1.5rem;
 }
 
-.stat-box {
-    background: #111827;
-    border: 1px solid #1E293B;
-    border-radius: 6px;
-    padding: 0.7rem 1rem;
+.stat-cell {
     flex: 1;
+    padding: 0.7rem 0.8rem;
+    border-right: 1px solid #C8BBA8;
     text-align: center;
 }
 
-.stat-val {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #3B82F6;
+.stat-cell:last-child { border-right: none; }
+
+.stat-num {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1A1208;
     display: block;
 }
 
-.stat-label {
-    font-size: 0.65rem;
-    color: #475569;
+.stat-cap {
+    font-size: 0.6rem;
+    color: #8B7355;
     text-transform: uppercase;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.1em;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.pull-quote {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: #1A1208;
+    border-top: 2px solid #1A1208;
+    border-bottom: 1px solid #1A1208;
+    padding: 0.7rem 0;
+    margin: 1rem 0;
+    text-align: center;
 }
 
 .results-table {
     width: 100%;
     border-collapse: collapse;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
+    background: white;
+    border: 1px solid #C8BBA8;
 }
 
 .results-table th {
-    background: #111827;
-    color: #64748B;
-    padding: 0.6rem 0.9rem;
+    background: #1A1208;
+    color: #F7F4EF;
+    padding: 0.5rem 0.8rem;
     text-align: left;
-    font-weight: 500;
-    border-bottom: 1px solid #1E293B;
-    font-size: 0.68rem;
+    font-weight: 600;
+    font-size: 0.65rem;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 .results-table td {
-    padding: 0.65rem 0.9rem;
-    border-bottom: 1px solid #0F172A;
-    color: #CBD5E1;
+    padding: 0.55rem 0.8rem;
+    border-bottom: 1px solid #EDE8DF;
+    color: #3D2E1E;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
 }
 
-.results-table tr:hover td { background: #111827; }
+.results-table tr:hover td { background: #F0EBE1; }
 
-.best-val { color: #34D399; font-weight: 600; }
+.best-val {
+    color: #1A1208;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.strategy-name {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    color: #4A3728;
+    font-size: 0.78rem;
+}
 
 .contra-card {
-    background: #111827;
-    border: 1px solid #1F2937;
-    border-left: 3px solid #7F1D1D;
-    border-radius: 0 6px 6px 0;
+    background: white;
+    border: 1px solid #C8BBA8;
+    border-left: 3px solid #6B0000;
     padding: 1rem 1.1rem;
     margin-bottom: 0.9rem;
 }
 
-.paper-tag {
-    font-size: 0.65rem;
-    color: #60A5FA;
+.paper-byline {
+    font-size: 0.62rem;
+    color: #8B7355;
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     margin-bottom: 0.3rem;
 }
 
-.claim {
-    font-size: 0.83rem;
-    color: #CBD5E1;
-    line-height: 1.55;
+.claim-text {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 0.85rem;
     font-style: italic;
-    margin-bottom: 0.6rem;
+    color: #3D2E1E;
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
 }
 
-.vs-label {
+.vs-divider {
     text-align: center;
-    color: #EF4444;
+    color: #6B0000;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.68rem;
-    letter-spacing: 0.12em;
-    margin: 0.5rem 0;
-    opacity: 0.7;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    margin: 0.4rem 0;
 }
 
 .empty-state {
     text-align: center;
     padding: 5rem 2rem;
-    color: #1E293B;
 }
 
-.empty-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
-
-.empty-title {
-    font-size: 1rem;
-    font-weight: 500;
-    color: #334155;
+.empty-head {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: #8B7355;
     margin-bottom: 0.4rem;
 }
 
-.empty-hint { font-size: 0.8rem; color: #1E293B; }
+.empty-hint {
+    font-size: 0.78rem;
+    color: #B5A898;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.footnote {
+    font-size: 0.68rem;
+    color: #8B7355;
+    line-height: 1.8;
+    font-family: 'JetBrains Mono', monospace;
+    border-top: 1px solid #C8BBA8;
+    padding-top: 0.8rem;
+    margin-top: 1.2rem;
+}
 
 .stTextInput > div > div > input {
-    background-color: #111827 !important;
-    color: #E2E8F0 !important;
-    border: 1px solid #1E293B !important;
-    border-radius: 5px !important;
+    background-color: white !important;
+    color: #1A1208 !important;
+    border: 1px solid #C8BBA8 !important;
+    border-radius: 2px !important;
+    font-family: 'Source Serif 4', Georgia, serif !important;
     font-size: 0.85rem !important;
 }
 
 .stSelectbox > div > div {
-    background-color: #111827 !important;
-    border: 1px solid #1E293B !important;
-    border-radius: 5px !important;
+    background-color: white !important;
+    border: 1px solid #C8BBA8 !important;
+    border-radius: 2px !important;
+    color: #1A1208 !important;
 }
 
 .stButton > button {
-    background-color: #1D4ED8 !important;
-    color: white !important;
+    background-color: #1A1208 !important;
+    color: #F7F4EF !important;
     border: none !important;
-    border-radius: 5px !important;
-    font-weight: 500 !important;
+    border-radius: 2px !important;
+    font-family: 'Playfair Display', Georgia, serif !important;
+    font-style: italic !important;
+    font-size: 0.9rem !important;
     width: 100% !important;
-    font-size: 0.85rem !important;
+    padding: 0.5rem !important;
 }
 
-.stButton > button:hover { background-color: #1E40AF !important; }
+.stButton > button:hover {
+    background-color: #3D2E1E !important;
+}
 
 .stTabs [data-baseweb="tab-list"] {
-    background-color: #0A0F1E;
-    border-bottom: 1px solid #1E293B;
+    background-color: #F7F4EF;
+    border-bottom: 2px solid #1A1208;
     gap: 0;
 }
 
 .stTabs [data-baseweb="tab"] {
-    color: #475569;
+    color: #8B7355;
     font-size: 0.82rem;
-    padding: 0.6rem 1.2rem;
+    padding: 0.5rem 1.2rem;
+    font-family: 'Playfair Display', Georgia, serif;
 }
 
 .stTabs [aria-selected="true"] {
-    color: #3B82F6 !important;
-    border-bottom: 2px solid #3B82F6 !important;
-    background: transparent !important;
+    color: #1A1208 !important;
+    background: #1A1208 !important;
+    color: #F7F4EF !important;
 }
 
-div[data-testid="stSpinner"] { color: #3B82F6; }
+.stInfo {
+    background: #EDE8DF;
+    border: 1px solid #C8BBA8;
+    color: #5C4A35;
+}
 </style>
 """, unsafe_allow_html=True)
 
 DATA_DIR = Path(__file__).parent / 'data'
 
 
-@st.cache_resource(show_spinner="Loading indexes — first run takes ~2 minutes...")
+@st.cache_resource(show_spinner="Setting the type — indexing papers, first run takes ~2 minutes...")
 def load_indexes():
     with open(DATA_DIR / 'bm25_index.pkl', 'rb') as f:
         bm25_index = pickle.load(f)
@@ -319,45 +381,36 @@ def load_indexes():
     chroma_path = DATA_DIR / 'chroma_db'
     chroma_path.mkdir(exist_ok=True)
     chroma_client = chromadb.PersistentClient(path=str(chroma_path))
-
     existing = [c.name for c in chroma_client.list_collections()]
 
     if 'fixed_chunks' not in existing:
-        fixed_col = chroma_client.create_collection(
-            name="fixed_chunks", metadata={"hnsw:space": "cosine"}
-        )
+        fixed_col = chroma_client.create_collection(name="fixed_chunks", metadata={"hnsw:space": "cosine"})
         texts = [c['text'] for c in fixed_chunks]
         embeddings = embed_model.encode(texts, batch_size=64, show_progress_bar=False)
-        batch = 500
-        for i in range(0, len(fixed_chunks), batch):
-            bc = fixed_chunks[i:i+batch]
-            be = embeddings[i:i+batch]
+        for i in range(0, len(fixed_chunks), 500):
+            bc = fixed_chunks[i:i+500]
+            be = embeddings[i:i+500]
             fixed_col.add(
                 ids=[c['chunk_id'] for c in bc],
                 documents=[c['text'] for c in bc],
                 embeddings=be.tolist(),
-                metadatas=[{'paper_id': c['paper_id'], 'title': c['title'],
-                            'page_num': c['page_num'], 'chunk_id': c['chunk_id']} for c in bc]
+                metadatas=[{'paper_id': c['paper_id'], 'title': c['title'], 'page_num': c['page_num'], 'chunk_id': c['chunk_id']} for c in bc]
             )
     else:
         fixed_col = chroma_client.get_collection("fixed_chunks")
 
     if 'semantic_chunks' not in existing:
-        sem_col = chroma_client.create_collection(
-            name="semantic_chunks", metadata={"hnsw:space": "cosine"}
-        )
+        sem_col = chroma_client.create_collection(name="semantic_chunks", metadata={"hnsw:space": "cosine"})
         texts = [c['text'] for c in semantic_chunks]
         embeddings = embed_model.encode(texts, batch_size=64, show_progress_bar=False)
-        batch = 500
-        for i in range(0, len(semantic_chunks), batch):
-            bc = semantic_chunks[i:i+batch]
-            be = embeddings[i:i+batch]
+        for i in range(0, len(semantic_chunks), 500):
+            bc = semantic_chunks[i:i+500]
+            be = embeddings[i:i+500]
             sem_col.add(
                 ids=[c['chunk_id'] for c in bc],
                 documents=[c['text'] for c in bc],
                 embeddings=be.tolist(),
-                metadatas=[{'paper_id': c['paper_id'], 'title': c['title'],
-                            'page_num': c['page_num'], 'chunk_id': c['chunk_id']} for c in bc]
+                metadatas=[{'paper_id': c['paper_id'], 'title': c['title'], 'page_num': c['page_num'], 'chunk_id': c['chunk_id']} for c in bc]
             )
     else:
         sem_col = chroma_client.get_collection("semantic_chunks")
@@ -376,16 +429,14 @@ def load_eval_data():
 
 def naive_retrieve(query, embed_model, fixed_col, top_k=5):
     qe = embed_model.encode(query).tolist()
-    r = fixed_col.query(query_embeddings=[qe], n_results=top_k,
-                        include=['documents', 'distances', 'metadatas'])
+    r = fixed_col.query(query_embeddings=[qe], n_results=top_k, include=['documents', 'distances', 'metadatas'])
     return [{'text': d, 'score': round(1-s, 3), 'title': m['title']}
             for d, s, m in zip(r['documents'][0], r['distances'][0], r['metadatas'][0])]
 
 
 def semantic_retrieve(query, embed_model, sem_col, top_k=5):
     qe = embed_model.encode(query).tolist()
-    r = sem_col.query(query_embeddings=[qe], n_results=top_k,
-                      include=['documents', 'distances', 'metadatas'])
+    r = sem_col.query(query_embeddings=[qe], n_results=top_k, include=['documents', 'distances', 'metadatas'])
     return [{'text': d, 'score': round(1-s, 3), 'title': m['title']}
             for d, s, m in zip(r['documents'][0], r['distances'][0], r['metadatas'][0])]
 
@@ -393,8 +444,7 @@ def semantic_retrieve(query, embed_model, sem_col, top_k=5):
 def hybrid_retrieve(query, embed_model, fixed_col, bm25_index, bm25_metadata, top_k=5):
     fetch_k = top_k * 4
     qe = embed_model.encode(query).tolist()
-    dr = fixed_col.query(query_embeddings=[qe], n_results=fetch_k,
-                         include=['documents', 'distances', 'metadatas'])
+    dr = fixed_col.query(query_embeddings=[qe], n_results=fetch_k, include=['documents', 'distances', 'metadatas'])
     dense_hits = {}
     for rank, (d, s, m) in enumerate(zip(dr['documents'][0], dr['distances'][0], dr['metadatas'][0])):
         cid = m.get('chunk_id', f"d_{rank}")
@@ -423,10 +473,8 @@ def hybrid_retrieve(query, embed_model, fixed_col, bm25_index, bm25_metadata, to
 def classify_query(query):
     q = query.lower()
     signals = {
-        'consensus': ['do papers agree', 'is there consensus', 'controversy',
-                      'disagree', 'contradiction', 'conflicting', 'debate'],
-        'comparative': ['compare', 'difference between', 'versus', ' vs ',
-                        'better than', 'trade-off', 'contrast', 'differ'],
+        'consensus': ['do papers agree', 'is there consensus', 'controversy', 'disagree', 'contradiction', 'conflicting', 'debate'],
+        'comparative': ['compare', 'difference between', 'versus', ' vs ', 'better than', 'trade-off', 'contrast', 'differ'],
         'procedural': ['how to', 'how do i', 'steps to', 'implement', 'build'],
         'factual': ['what is', 'what are', 'define', 'explain', 'describe']
     }
@@ -437,33 +485,28 @@ def classify_query(query):
     return 'factual'
 
 
-def render_chunk(chunk, strategy_label):
-    score = chunk['score']
-    score_color = '#34D399' if score > 0.55 else '#FBBF24' if score > 0.4 else '#F87171'
+def render_chunk(chunk, idx):
+    card_class = "chunk-card" if idx == 0 else "chunk-card chunk-card-secondary"
     st.markdown(f"""
-    <div class="chunk-card">
-        <div class="chunk-meta">
-            <div class="chunk-title">{chunk['title'][:65]}</div>
-            <span class="chunk-score" style="background:{score_color}22;color:{score_color}">
-                {score}
-            </span>
+    <div class="{card_class}">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div class="chunk-paper">{chunk['title'][:68]}</div>
+            <span class="chunk-score">{chunk['score']}</span>
         </div>
-        <div class="chunk-text">{chunk['text'][:420]}{'...' if len(chunk['text']) > 420 else ''}</div>
+        <div class="chunk-text">{chunk['text'][:440]}{'…' if len(chunk['text']) > 440 else ''}</div>
     </div>
     """, unsafe_allow_html=True)
 
 
 with st.sidebar:
-    st.markdown('<div class="main-title">🔬 ResearchLens</div>', unsafe_allow_html=True)
-    st.markdown('<div class="main-sub">Intelligent ML Paper Analysis</div>', unsafe_allow_html=True)
+    st.markdown('<div class="masthead">ResearchLens</div>', unsafe_allow_html=True)
+    st.markdown('<div class="vol-line">Vol. I · ML Paper Intelligence</div>', unsafe_allow_html=True)
+    st.markdown('<div class="rule-double"></div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="section-label">Ask a question</div>', unsafe_allow_html=True)
-    query = st.text_input(
-        "", placeholder="What is LoRA?", label_visibility="collapsed",
-        key="query_input"
-    )
+    st.markdown('<div class="section-label">Query</div>', unsafe_allow_html=True)
+    query = st.text_input("", placeholder="What is LoRA?", label_visibility="collapsed", key="query_input")
 
-    st.markdown('<div class="section-label">Retrieval mode</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-label" style="margin-top:0.8rem">Retrieval mode</div>', unsafe_allow_html=True)
     mode = st.selectbox("", [
         "Auto — Adaptive Router",
         "A · Naive RAG",
@@ -472,53 +515,40 @@ with st.sidebar:
         "Compare All 4 Strategies"
     ], label_visibility="collapsed")
 
-    search = st.button("Search")
+    st.button("Search →")
 
-    st.markdown("---")
+    st.markdown('<div class="rule-single"></div>', unsafe_allow_html=True)
     st.markdown("""
-    <div style="font-size:0.72rem;color:#334155;line-height:1.7">
-        <span style="color:#475569;font-weight:500">Corpus</span><br>
-        100 ML/AI papers · arXiv<br><br>
-        <span style="color:#475569;font-weight:500">Strategies</span><br>
-        Naive · Semantic · Hybrid · Reranker<br><br>
-        <span style="color:#475569;font-weight:500">Evaluated on</span><br>
-        50 QASPER questions<br><br>
-        <span style="color:#475569;font-weight:500">Generator</span><br>
-        Mistral-7B-Instruct-v0.2
+    <div style="font-size:0.7rem;color:#8B7355;line-height:2;font-family:'JetBrains Mono',monospace">
+        Corpus · 100 arXiv papers<br>
+        Chunks · 3,205 fixed · 3,427 semantic<br>
+        Generator · Mistral-7B-Instruct<br>
+        Embeddings · all-MiniLM-L6-v2<br>
+        NLI · bart-large-mnli
     </div>
     """, unsafe_allow_html=True)
 
 
-tab1, tab2, tab3 = st.tabs(["🔍  Search", "📊  Results Table", "⚡  Contradictions"])
+tab1, tab2, tab3 = st.tabs(["Search", "Results Table", "Contradictions"])
 
 with tab1:
     if not query:
         st.markdown("""
         <div class="empty-state">
-            <div class="empty-icon">🔬</div>
-            <div class="empty-title">Search across 100 ML research papers</div>
+            <div style="font-size:2rem;margin-bottom:0.8rem">🔬</div>
+            <div class="empty-head">Ask a question about ML research</div>
             <div class="empty-hint">Try: "What is the difference between LoRA and full fine-tuning?"</div>
         </div>
         """, unsafe_allow_html=True)
-
     else:
         bm25_index, bm25_metadata, fixed_chunks, semantic_chunks, embed_model, fixed_col, sem_col = load_indexes()
 
         query_type = classify_query(query)
-        type_styles = {
-            'factual':     ('#3B82F6', '#1E3A5F'),
-            'comparative': ('#8B5CF6', '#2E1065'),
-            'consensus':   ('#EF4444', '#450A0A'),
-            'procedural':  ('#10B981', '#022C22'),
-        }
-        tc, tb = type_styles.get(query_type, ('#3B82F6', '#1E3A5F'))
 
         st.markdown(f"""
         <div style="margin-bottom:1rem">
             <div class="query-display">"{query}"</div>
-            <span class="type-badge" style="background:{tb};color:{tc};border:1px solid {tc}44">
-                {query_type}
-            </span>
+            <span class="type-badge">{query_type} query</span>
         </div>
         """, unsafe_allow_html=True)
 
@@ -530,27 +560,26 @@ with tab1:
         if mode == "Compare All 4 Strategies":
             col_a, col_b = st.columns(2)
             with col_a:
-                st.markdown('<div class="col-label">A · Naive RAG</div>', unsafe_allow_html=True)
-                for c in naive_retrieve(query, embed_model, fixed_col, top_k=3):
-                    render_chunk(c, "naive")
-                st.markdown('<div class="col-label" style="margin-top:1rem">C · Hybrid RAG</div>', unsafe_allow_html=True)
-                for c in hybrid_retrieve(query, embed_model, fixed_col, bm25_index, bm25_metadata, top_k=3):
-                    render_chunk(c, "hybrid")
+                st.markdown('<div class="col-header">A · Naive RAG</div>', unsafe_allow_html=True)
+                for i, c in enumerate(naive_retrieve(query, embed_model, fixed_col, top_k=3)):
+                    render_chunk(c, i)
+                st.markdown('<div class="col-header" style="margin-top:1.2rem">C · Hybrid RAG</div>', unsafe_allow_html=True)
+                for i, c in enumerate(hybrid_retrieve(query, embed_model, fixed_col, bm25_index, bm25_metadata, top_k=3)):
+                    render_chunk(c, i)
             with col_b:
-                st.markdown('<div class="col-label">B · Semantic RAG</div>', unsafe_allow_html=True)
-                for c in semantic_retrieve(query, embed_model, sem_col, top_k=3):
-                    render_chunk(c, "semantic")
-                st.markdown('<div class="col-label" style="margin-top:1rem">D · Hybrid + Reranker</div>', unsafe_allow_html=True)
+                st.markdown('<div class="col-header">B · Semantic RAG</div>', unsafe_allow_html=True)
+                for i, c in enumerate(semantic_retrieve(query, embed_model, sem_col, top_k=3)):
+                    render_chunk(c, i)
+                st.markdown('<div class="col-header" style="margin-top:1.2rem">D · Hybrid + Reranker</div>', unsafe_allow_html=True)
                 st.markdown("""
-                <div style="font-size:0.75rem;color:#475569;font-family:monospace;
-                    padding:0.6rem;background:#111827;border-radius:4px;margin-bottom:0.5rem">
-                    Cross-encoder reranker requires GPU — showing Hybrid results as proxy.
-                    See comparison table for measured reranker metrics.
+                <div style="background:white;border:1px solid #C8BBA8;padding:0.7rem 0.9rem;
+                    font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#8B7355">
+                    Cross-encoder reranker requires GPU. Showing Hybrid results as proxy.
+                    See Results Table for measured reranker metrics.
                 </div>
                 """, unsafe_allow_html=True)
-                for c in hybrid_retrieve(query, embed_model, fixed_col, bm25_index, bm25_metadata, top_k=3):
-                    render_chunk(c, "hybrid+rerank")
-
+                for i, c in enumerate(hybrid_retrieve(query, embed_model, fixed_col, bm25_index, bm25_metadata, top_k=3)):
+                    render_chunk(c, i)
         else:
             mode_map = {
                 "Auto — Adaptive Router": None,
@@ -558,14 +587,12 @@ with tab1:
                 "B · Semantic RAG": "semantic",
                 "C · Hybrid RAG": "hybrid",
             }
-            selected = mode_map[mode]
-
+            selected = mode_map.get(mode)
             if selected is None:
                 selected = type_to_strategy.get(query_type, 'naive')
                 st.markdown(f"""
                 <div class="router-note">
-                    → router: <span style="color:#3B82F6">{selected}</span>
-                    &nbsp;·&nbsp; query type: <span style="color:{tc}">{query_type}</span>
+                    router → <em>{selected}</em> · query classified as <em>{query_type}</em>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -578,45 +605,50 @@ with tab1:
 
             avg_score = float(np.mean([r['score'] for r in results]))
             conf = min(int(avg_score * 150), 100)
-            bar_color = '#10B981' if conf >= 70 else '#F59E0B' if conf >= 45 else '#EF4444'
-            badge = 'HIGH' if conf >= 70 else 'MODERATE' if conf >= 45 else 'LOW'
+            bar_color = '#2D6A2D' if conf >= 70 else '#8B6914' if conf >= 45 else '#6B0000'
+            badge = 'High confidence' if conf >= 70 else 'Moderate confidence' if conf >= 45 else 'Low confidence'
 
             st.markdown(f"""
-            <div style="background:#111827;border:1px solid #1E293B;border-radius:6px;
-                padding:0.7rem 1rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem">
-                <div style="flex:1;background:#0A0F1E;border-radius:3px;height:4px;overflow:hidden">
-                    <div style="width:{conf}%;height:100%;background:{bar_color};border-radius:3px"></div>
+            <div class="confidence-row">
+                <div style="flex:1;background:#EDE8DF;height:3px;overflow:hidden">
+                    <div style="width:{conf}%;height:100%;background:{bar_color}"></div>
                 </div>
-                <span style="color:{bar_color};font-family:monospace;font-size:0.7rem;
-                    font-weight:600;white-space:nowrap">{badge} · {conf}/100</span>
+                <span style="color:{bar_color};font-family:'JetBrains Mono',monospace;
+                    font-size:0.68rem;white-space:nowrap">{badge} · {conf}/100</span>
             </div>
             """, unsafe_allow_html=True)
 
-            for chunk in results:
-                render_chunk(chunk, selected)
+            for i, chunk in enumerate(results):
+                render_chunk(chunk, i)
 
 with tab2:
     try:
         comparison, _ = load_eval_data()
 
         st.markdown("""
-        <div class="stats-row">
-            <div class="stat-box">
-                <span class="stat-val">100</span>
-                <span class="stat-label">arXiv Papers</span>
+        <div class="stats-strip">
+            <div class="stat-cell">
+                <span class="stat-num">100</span>
+                <span class="stat-cap">arXiv papers</span>
             </div>
-            <div class="stat-box">
-                <span class="stat-val">50</span>
-                <span class="stat-label">QASPER Questions</span>
+            <div class="stat-cell">
+                <span class="stat-num">50</span>
+                <span class="stat-cap">QASPER questions</span>
             </div>
-            <div class="stat-box">
-                <span class="stat-val">4</span>
-                <span class="stat-label">Strategies Compared</span>
+            <div class="stat-cell">
+                <span class="stat-num">4</span>
+                <span class="stat-cap">strategies tested</span>
             </div>
-            <div class="stat-box">
-                <span class="stat-val">+9.2%</span>
-                <span class="stat-label">Faithfulness Gain</span>
+            <div class="stat-cell">
+                <span class="stat-num">+9.2%</span>
+                <span class="stat-cap">faithfulness gain</span>
             </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <div class="pull-quote">
+            Hybrid + Reranker achieves 9.2% higher faithfulness than Naive RAG at only 14% latency overhead.
         </div>
         """, unsafe_allow_html=True)
 
@@ -640,23 +672,22 @@ with tab2:
             r_class = 'best-val' if row['answer_relevance'] == best_rel else ''
             table_html += f"""
             <tr>
-                <td style="color:#60A5FA;font-family:monospace">{row['strategy']}</td>
+                <td class="strategy-name">{row['strategy']}</td>
                 <td class="{f_class}">{row['faithfulness']}</td>
                 <td class="{p_class}">{row['context_precision']}</td>
                 <td class="{r_class}">{row['answer_relevance']}</td>
-                <td style="color:#475569">{row['latency_ms']}ms</td>
+                <td>{row['latency_ms']}ms</td>
             </tr>
             """
         table_html += "</table>"
         st.markdown(table_html, unsafe_allow_html=True)
 
         st.markdown("""
-        <div style="margin-top:1.2rem;font-size:0.72rem;color:#334155;line-height:1.9;
-            font-family:'JetBrains Mono',monospace">
-            Faithfulness — token overlap between answer and retrieved context<br>
-            Context Precision — fraction of retrieved chunks with cosine sim > 0.4 to query<br>
-            Answer Relevance — cosine similarity between query and answer embeddings<br>
-            Generator — Mistral-7B-Instruct-v0.2 · Evaluator — custom metrics on Kaggle T4
+        <div class="footnote">
+            † Faithfulness — token overlap between answer and retrieved context<br>
+            † Context Precision — fraction of retrieved chunks with cosine similarity &gt; 0.4 to query<br>
+            † Answer Relevance — cosine similarity between query embedding and answer embedding<br>
+            † Generator — Mistral-7B-Instruct-v0.2 on Kaggle T4 GPU · best values underlined
         </div>
         """, unsafe_allow_html=True)
 
@@ -669,46 +700,48 @@ with tab3:
 
         total = sum(len(t['contradictions']) for t in contradictions)
         st.markdown(f"""
-        <div style="font-size:0.78rem;color:#475569;margin-bottom:1.2rem;font-family:monospace">
-            {total} contradictions detected across 3 topics · NLI model: facebook/bart-large-mnli
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#8B7355;
+            margin-bottom:1rem;border-bottom:1px solid #C8BBA8;padding-bottom:0.6rem">
+            {total} contradictions detected across 3 topics · NLI: facebook/bart-large-mnli · threshold 0.45
         </div>
         """, unsafe_allow_html=True)
 
         for topic_result in contradictions:
             if not topic_result['contradictions']:
                 st.markdown(f"""
-                <div style="font-size:0.8rem;color:#334155;margin:0.8rem 0;font-family:monospace">
-                    Topic: "{topic_result['topic']}" — no contradictions above threshold
+                <div style="font-size:0.78rem;color:#8B7355;margin:0.8rem 0;
+                    font-family:'JetBrains Mono',monospace">
+                    "{topic_result['topic']}" — no contradictions detected above threshold
                 </div>
                 """, unsafe_allow_html=True)
                 continue
 
             st.markdown(f"""
-            <div style="font-size:0.85rem;font-weight:500;color:#E2E8F0;margin:1.2rem 0 0.7rem">
-                "{topic_result['topic']}"
-                <span style="color:#475569;font-size:0.72rem;font-family:monospace;margin-left:0.5rem">
-                    {len(topic_result['contradictions'])} found
-                </span>
+            <div style="margin:1.2rem 0 0.7rem">
+                <span style="font-family:'Playfair Display',Georgia,serif;font-size:0.95rem;
+                    font-style:italic;color:#1A1208">"{topic_result['topic']}"</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;
+                    color:#8B7355;margin-left:0.5rem">{len(topic_result['contradictions'])} found</span>
             </div>
             """, unsafe_allow_html=True)
 
             for c in topic_result['contradictions'][:3]:
                 score = c['contradiction_score']
-                score_color = '#EF4444' if score > 0.45 else '#F59E0B'
+                score_color = '#6B0000' if score > 0.45 else '#8B6914'
                 st.markdown(f"""
                 <div class="contra-card">
-                    <div style="display:flex;justify-content:space-between;margin-bottom:0.7rem">
-                        <span style="font-family:monospace;font-size:0.65rem;color:#475569">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:0.6rem">
+                        <span style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:#8B7355">
                             contradiction score
                         </span>
-                        <span style="color:{score_color};font-family:monospace;
-                            font-size:0.72rem;font-weight:600">{score}</span>
+                        <span style="color:{score_color};font-family:'JetBrains Mono',monospace;
+                            font-size:0.7rem;font-weight:600">{score}</span>
                     </div>
-                    <div class="paper-tag">Paper A · {c['paper_a'][:58]}</div>
-                    <div class="claim">"{c['claim_a'][:280]}"</div>
-                    <div class="vs-label">↕ &nbsp; CONTRADICTS &nbsp; ↕</div>
-                    <div class="paper-tag" style="margin-top:0.6rem">Paper B · {c['paper_b'][:58]}</div>
-                    <div class="claim">"{c['claim_b'][:280]}"</div>
+                    <div class="paper-byline">Paper A · {c['paper_a'][:60]}</div>
+                    <div class="claim-text">"{c['claim_a'][:290]}"</div>
+                    <div class="vs-divider">↕ &nbsp; contradicts &nbsp; ↕</div>
+                    <div class="paper-byline" style="margin-top:0.5rem">Paper B · {c['paper_b'][:60]}</div>
+                    <div class="claim-text">"{c['claim_b'][:290]}"</div>
                 </div>
                 """, unsafe_allow_html=True)
 
