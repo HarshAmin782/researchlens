@@ -1,0 +1,37 @@
+[
+  {
+    "strategy": "A \u00c2\u00b7 Naive RAG",
+    "faithfulness": 0.666,
+    "context_precision": 0.688,
+    "answer_relevance": 0.359,
+    "latency_ms": 17022
+  },
+  {
+    "strategy": "B \u00c2\u00b7 Semantic RAG",
+    "faithfulness": 0.647,
+    "context_precision": 0.66,
+    "answer_relevance": 0.411,
+    "latency_ms": 17863
+  },
+  {
+    "strategy": "C \u00c2\u00b7 Hybrid RAG",
+    "faithfulness": 0.701,
+    "context_precision": 0.364,
+    "answer_relevance": 0.341,
+    "latency_ms": 17656
+  },
+  {
+    "strategy": "D \u00c2\u00b7 Hybrid + Reranker",
+    "faithfulness": 0.727,
+    "context_precision": 0.384,
+    "answer_relevance": 0.356,
+    "latency_ms": 19418
+  },
+  {
+    "strategy": "Adaptive Router",
+    "faithfulness": 0.697,
+    "context_precision": 0.652,
+    "answer_relevance": 0.356,
+    "latency_ms": 17366
+  }
+]
