@@ -24,6 +24,19 @@ html, body, [class*="css"] {
 
 .stApp { background-color: #F7F4EF; }
 
+header[data-testid="stHeader"] {
+    background-color: #F7F4EF !important;
+    border-bottom: 1px solid #C8BBA8 !important;
+}
+
+header[data-testid="stHeader"] button,
+header[data-testid="stHeader"] a,
+header[data-testid="stHeader"] span {
+    color: #1A1208 !important;
+}
+
+.stMainBlockContainer { background-color: #F7F4EF !important; }
+
 section[data-testid="stSidebar"] {
     background-color: #EDE8DF;
     border-right: 1px solid #C8BBA8;
@@ -652,35 +665,31 @@ with tab2:
         </div>
         """, unsafe_allow_html=True)
 
-        best_faith = max(r['faithfulness'] for r in comparison)
-        best_prec = max(r['context_precision'] for r in comparison)
-        best_rel = max(r['answer_relevance'] for r in comparison)
+        import pandas as pd
 
-        table_html = """
-        <table class="results-table">
-        <tr>
-            <th>Strategy</th>
-            <th>Faithfulness ↑</th>
-            <th>Context Precision ↑</th>
-            <th>Answer Relevance ↑</th>
-            <th>Avg Latency</th>
-        </tr>
-        """
-        for row in comparison:
-            f_class = 'best-val' if row['faithfulness'] == best_faith else ''
-            p_class = 'best-val' if row['context_precision'] == best_prec else ''
-            r_class = 'best-val' if row['answer_relevance'] == best_rel else ''
-            table_html += f"""
-            <tr>
-                <td class="strategy-name">{row['strategy']}</td>
-                <td class="{f_class}">{row['faithfulness']}</td>
-                <td class="{p_class}">{row['context_precision']}</td>
-                <td class="{r_class}">{row['answer_relevance']}</td>
-                <td>{row['latency_ms']}ms</td>
-            </tr>
-            """
-        table_html += "</table>"
-        st.markdown(table_html, unsafe_allow_html=True)
+        df_display = pd.DataFrame([{
+            'Strategy': r['strategy'],
+            'Faithfulness': r['faithfulness'],
+            'Context Precision': r['context_precision'],
+            'Answer Relevance': r['answer_relevance'],
+            'Latency (ms)': r['latency_ms']
+        } for r in comparison])
+
+        st.dataframe(
+            df_display.style
+                .highlight_max(
+                    subset=['Faithfulness', 'Context Precision', 'Answer Relevance'],
+                    color='#C8BBA8'
+                )
+                .format({
+                    'Faithfulness': '{:.3f}',
+                    'Context Precision': '{:.3f}',
+                    'Answer Relevance': '{:.3f}',
+                    'Latency (ms)': '{:,}'
+                }),
+            use_container_width=True,
+            hide_index=True
+        )
 
         st.markdown("""
         <div class="footnote">
