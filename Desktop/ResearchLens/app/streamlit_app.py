@@ -31,8 +31,15 @@ header[data-testid="stHeader"] {
 
 header[data-testid="stHeader"] button,
 header[data-testid="stHeader"] a,
-header[data-testid="stHeader"] span {
+header[data-testid="stHeader"] span,
+header[data-testid="stHeader"] p,
+header[data-testid="stHeader"] div {
     color: #1A1208 !important;
+}
+
+header[data-testid="stHeader"] svg {
+    fill: #1A1208 !important;
+    stroke: #1A1208 !important;
 }
 
 .stMainBlockContainer { background-color: #F7F4EF !important; }
@@ -433,11 +440,21 @@ def load_indexes():
 
 @st.cache_data
 def load_eval_data():
-    with open(DATA_DIR / 'comparison_table.json', 'r') as f:
+    with open(DATA_DIR / 'comparison_table.json', 'r', encoding='utf-8') as f:
         comparison = json.load(f)
     with open(DATA_DIR / 'contradiction_results.json', 'r') as f:
         contradictions = json.load(f)
     return comparison, contradictions
+
+
+@st.cache_data
+def load_paper_urls():
+    try:
+        with open(DATA_DIR / 'papers_metadata.json', 'r', encoding='utf-8') as f:
+            metadata = json.load(f)
+        return {m['title']: m['url'] for m in metadata}
+    except Exception:
+        return {}
 
 
 def naive_retrieve(query, embed_model, fixed_col, top_k=5):
@@ -498,13 +515,20 @@ def classify_query(query):
     return 'factual'
 
 
-def render_chunk(chunk, idx):
+def render_chunk(chunk, idx, paper_urls=None):
     card_class = "chunk-card" if idx == 0 else "chunk-card chunk-card-secondary"
+    title = chunk['title']
+    url = (paper_urls or {}).get(title, '')
+    if url:
+        title_html = f'<a href="{url}" target="_blank" style="color:#4A3728;text-decoration:none;border-bottom:1px solid #C8BBA8">{title}</a>'
+    else:
+        arxiv_search = f"https://arxiv.org/search/?searchtype=all&query={title[:50].replace(' ', '+')}"
+        title_html = f'<a href="{arxiv_search}" target="_blank" style="color:#4A3728;text-decoration:none;border-bottom:1px solid #C8BBA8">{title}</a>'
     st.markdown(f"""
     <div class="{card_class}">
-        <div style="display:flex;justify-content:space-between;align-items:baseline">
-            <div class="chunk-paper">{chunk['title'][:68]}</div>
-            <span class="chunk-score">{chunk['score']}</span>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:1rem">
+            <div class="chunk-paper" style="overflow:visible;white-space:normal">{title_html}</div>
+            <span class="chunk-score" style="white-space:nowrap">{chunk['score']}</span>
         </div>
         <div class="chunk-text">{chunk['text'][:440]}{'…' if len(chunk['text']) > 440 else ''}</div>
     </div>
@@ -555,6 +579,7 @@ with tab1:
         """, unsafe_allow_html=True)
     else:
         bm25_index, bm25_metadata, fixed_chunks, semantic_chunks, embed_model, fixed_col, sem_col = load_indexes()
+        paper_urls = load_paper_urls()
 
         query_type = classify_query(query)
 
@@ -575,14 +600,14 @@ with tab1:
             with col_a:
                 st.markdown('<div class="col-header">A · Naive RAG</div>', unsafe_allow_html=True)
                 for i, c in enumerate(naive_retrieve(query, embed_model, fixed_col, top_k=3)):
-                    render_chunk(c, i)
+                    render_chunk(c, i, paper_urls)
                 st.markdown('<div class="col-header" style="margin-top:1.2rem">C · Hybrid RAG</div>', unsafe_allow_html=True)
                 for i, c in enumerate(hybrid_retrieve(query, embed_model, fixed_col, bm25_index, bm25_metadata, top_k=3)):
-                    render_chunk(c, i)
+                    render_chunk(c, i, paper_urls)
             with col_b:
                 st.markdown('<div class="col-header">B · Semantic RAG</div>', unsafe_allow_html=True)
                 for i, c in enumerate(semantic_retrieve(query, embed_model, sem_col, top_k=3)):
-                    render_chunk(c, i)
+                    render_chunk(c, i, paper_urls)
                 st.markdown('<div class="col-header" style="margin-top:1.2rem">D · Hybrid + Reranker</div>', unsafe_allow_html=True)
                 st.markdown("""
                 <div style="background:white;border:1px solid #C8BBA8;padding:0.7rem 0.9rem;
@@ -592,7 +617,7 @@ with tab1:
                 </div>
                 """, unsafe_allow_html=True)
                 for i, c in enumerate(hybrid_retrieve(query, embed_model, fixed_col, bm25_index, bm25_metadata, top_k=3)):
-                    render_chunk(c, i)
+                    render_chunk(c, i, paper_urls)
         else:
             mode_map = {
                 "Auto — Adaptive Router": None,
@@ -616,8 +641,13 @@ with tab1:
             else:
                 results = hybrid_retrieve(query, embed_model, fixed_col, bm25_index, bm25_metadata)
 
-            avg_score = float(np.mean([r['score'] for r in results]))
-            conf = min(int(avg_score * 150), 100)
+            scores = [r['score'] for r in results]
+            avg_score = float(np.mean(scores))
+            if selected == 'hybrid':
+                max_rrf = 1/60 + 1/61
+                conf = min(int((avg_score / max_rrf) * 100), 100)
+            else:
+                conf = min(int(avg_score * 150), 100)
             bar_color = '#2D6A2D' if conf >= 70 else '#8B6914' if conf >= 45 else '#6B0000'
             badge = 'High confidence' if conf >= 70 else 'Moderate confidence' if conf >= 45 else 'Low confidence'
 
@@ -632,7 +662,7 @@ with tab1:
             """, unsafe_allow_html=True)
 
             for i, chunk in enumerate(results):
-                render_chunk(chunk, i)
+                render_chunk(chunk, i, paper_urls)
 
 with tab2:
     try:
@@ -667,29 +697,31 @@ with tab2:
 
         import pandas as pd
 
-        df_display = pd.DataFrame([{
-            'Strategy': r['strategy'],
-            'Faithfulness': r['faithfulness'],
-            'Context Precision': r['context_precision'],
-            'Answer Relevance': r['answer_relevance'],
-            'Latency (ms)': r['latency_ms']
-        } for r in comparison])
+        best_faith = max(r['faithfulness'] for r in comparison)
+        best_prec = max(r['context_precision'] for r in comparison)
+        best_rel = max(r['answer_relevance'] for r in comparison)
 
-        st.dataframe(
-            df_display.style
-                .highlight_max(
-                    subset=['Faithfulness', 'Context Precision', 'Answer Relevance'],
-                    color='#C8BBA8'
-                )
-                .format({
-                    'Faithfulness': '{:.3f}',
-                    'Context Precision': '{:.3f}',
-                    'Answer Relevance': '{:.3f}',
-                    'Latency (ms)': '{:,}'
-                }),
-            use_container_width=True,
-            hide_index=True
-        )
+        table_html = """<table style="width:100%;border-collapse:collapse;font-size:0.8rem;background:white;border:1px solid #C8BBA8">
+<tr style="background:#1A1208">
+<th style="padding:0.5rem 0.8rem;text-align:left;color:#F7F4EF;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;font-family:JetBrains Mono,monospace;font-weight:500">Strategy</th>
+<th style="padding:0.5rem 0.8rem;text-align:left;color:#F7F4EF;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;font-family:JetBrains Mono,monospace;font-weight:500">Faithfulness ↑</th>
+<th style="padding:0.5rem 0.8rem;text-align:left;color:#F7F4EF;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;font-family:JetBrains Mono,monospace;font-weight:500">Context Precision ↑</th>
+<th style="padding:0.5rem 0.8rem;text-align:left;color:#F7F4EF;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;font-family:JetBrains Mono,monospace;font-weight:500">Answer Relevance ↑</th>
+<th style="padding:0.5rem 0.8rem;text-align:left;color:#F7F4EF;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;font-family:JetBrains Mono,monospace;font-weight:500">Avg Latency</th>
+</tr>"""
+        for row in comparison:
+            f_style = 'font-weight:600;text-decoration:underline;text-underline-offset:3px' if row['faithfulness'] == best_faith else ''
+            p_style = 'font-weight:600;text-decoration:underline;text-underline-offset:3px' if row['context_precision'] == best_prec else ''
+            r_style = 'font-weight:600;text-decoration:underline;text-underline-offset:3px' if row['answer_relevance'] == best_rel else ''
+            table_html += f"""<tr style="border-bottom:1px solid #EDE8DF">
+<td style="padding:0.55rem 0.8rem;color:#4A3728;font-family:'Playfair Display',Georgia,serif;font-style:italic;font-size:0.78rem">{row['strategy']}</td>
+<td style="padding:0.55rem 0.8rem;color:#3D2E1E;font-family:JetBrains Mono,monospace;font-size:0.75rem;{f_style}">{row['faithfulness']}</td>
+<td style="padding:0.55rem 0.8rem;color:#3D2E1E;font-family:JetBrains Mono,monospace;font-size:0.75rem;{p_style}">{row['context_precision']}</td>
+<td style="padding:0.55rem 0.8rem;color:#3D2E1E;font-family:JetBrains Mono,monospace;font-size:0.75rem;{r_style}">{row['answer_relevance']}</td>
+<td style="padding:0.55rem 0.8rem;color:#8B7355;font-family:JetBrains Mono,monospace;font-size:0.75rem">{row['latency_ms']}ms</td>
+</tr>"""
+        table_html += "</table>"
+        st.markdown(table_html, unsafe_allow_html=True)
 
         st.markdown("""
         <div class="footnote">
