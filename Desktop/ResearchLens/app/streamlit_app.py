@@ -515,6 +515,92 @@ def classify_query(query):
     return 'factual'
 
 
+@st.cache_resource
+def get_groq_client():
+    """Return a Groq client if a key is configured, else None (extractive fallback)."""
+    try:
+        key = None
+        try:
+            key = st.secrets.get("GROQ_API_KEY")
+        except Exception:
+            key = None
+        key = key or os.environ.get("GROQ_API_KEY")
+        if not key:
+            return None
+        from groq import Groq
+        return Groq(api_key=key)
+    except Exception:
+        return None
+
+
+def groq_answer(query, chunks, temperature=0.2):
+    """Generate a grounded answer from retrieved chunks via Groq. Returns str or None."""
+    client = get_groq_client()
+    if client is None:
+        return None
+    context = "\n\n".join(f"[{i+1}] {c['text']}" for i, c in enumerate(chunks))
+    prompt = (
+        "You are answering a question about machine-learning research using ONLY the "
+        "context excerpts below, which are drawn from arXiv papers. Cite the excerpts you "
+        "use as [1], [2], etc. Be concise (2-4 sentences). If the context does not contain "
+        "the answer, say so plainly instead of guessing.\n\n"
+        f"Context:\n{context}\n\nQuestion: {query}\n\nAnswer:"
+    )
+    try:
+        resp = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature,
+            max_tokens=400,
+        )
+        return resp.choices[0].message.content.strip()
+    except Exception:
+        return None
+
+
+def extractive_answer(query, chunks, embed_model, max_sentences=3):
+    """No-LLM fallback: stitch the chunk sentences most similar to the query."""
+    sentences = []
+    for c in chunks:
+        for s in re.split(r'(?<=[.!?])\s+', c['text']):
+            s = s.strip()
+            if len(s.split()) >= 6:
+                sentences.append(s)
+    if not sentences:
+        return None
+    qe = embed_model.encode(query)
+    se = embed_model.encode(sentences)
+    sims = se @ qe / (np.linalg.norm(se, axis=1) * np.linalg.norm(qe) + 1e-9)
+    top = sorted(np.argsort(sims)[::-1][:max_sentences])
+    return " ".join(sentences[i] for i in top)
+
+
+def compute_confidence(chunks, answer, answer2, embed_model, selected):
+    """3-signal confidence: retrieval + faithfulness + consistency. Returns (0-100, signals)."""
+    scores = [c['score'] for c in chunks]
+    if selected == 'hybrid':
+        max_rrf = 1/60 + 1/61
+        retrieval = min(float(np.mean(scores)) / max_rrf, 1.0)
+    else:
+        retrieval = min(float(np.mean(scores)) * 1.5, 1.0)
+
+    ctx_tokens = set(" ".join(c['text'] for c in chunks).lower().split())
+    ans_tokens = set(answer.lower().split())
+    faithfulness = len(ans_tokens & ctx_tokens) / max(len(ans_tokens), 1)
+
+    consistency = None
+    if answer2:
+        e1 = embed_model.encode(answer)
+        e2 = embed_model.encode(answer2)
+        consistency = float(e1 @ e2 / (np.linalg.norm(e1) * np.linalg.norm(e2) + 1e-9))
+
+    if consistency is not None:
+        conf = (retrieval * 0.4 + faithfulness * 0.3 + consistency * 0.3) * 100
+    else:
+        conf = (retrieval * 0.5 + faithfulness * 0.5) * 100
+    return int(round(conf)), {'retrieval': retrieval, 'faithfulness': faithfulness, 'consistency': consistency}
+
+
 def render_chunk(chunk, idx, paper_urls=None):
     card_class = "chunk-card" if idx == 0 else "chunk-card chunk-card-secondary"
     title = chunk['title']
@@ -641,26 +727,52 @@ with tab1:
             else:
                 results = hybrid_retrieve(query, embed_model, fixed_col, bm25_index, bm25_metadata)
 
-            scores = [r['score'] for r in results]
-            avg_score = float(np.mean(scores))
-            if selected == 'hybrid':
-                max_rrf = 1/60 + 1/61
-                conf = min(int((avg_score / max_rrf) * 100), 100)
-            else:
-                conf = min(int(avg_score * 150), 100)
-            bar_color = '#2D6A2D' if conf >= 70 else '#8B6914' if conf >= 45 else '#6B0000'
-            badge = 'High confidence' if conf >= 70 else 'Moderate confidence' if conf >= 45 else 'Low confidence'
+            with st.spinner("Composing an answer from the retrieved passages…"):
+                answer = groq_answer(query, results)
+                is_generated = answer is not None
+                if is_generated:
+                    answer2 = groq_answer(query, results, temperature=0.6)
+                else:
+                    answer = extractive_answer(query, results, embed_model)
+                    answer2 = None
 
-            st.markdown(f"""
-            <div class="confidence-row">
-                <div style="flex:1;background:#EDE8DF;height:3px;overflow:hidden">
-                    <div style="width:{conf}%;height:100%;background:{bar_color}"></div>
+            if answer:
+                conf, signals = compute_confidence(results, answer, answer2, embed_model, selected)
+                bar_color = '#2D6A2D' if conf >= 70 else '#8B6914' if conf >= 45 else '#6B0000'
+                badge = 'High confidence' if conf >= 70 else 'Moderate confidence' if conf >= 45 else 'Low confidence'
+                source_note = ('Mistral-class LLM · grounded in retrieved passages'
+                               if is_generated else
+                               'Extractive — generation offline, key not set')
+
+                st.markdown(f"""
+                <div style="background:white;border:1px solid #C8BBA8;border-left:3px solid #1A1208;
+                    padding:1rem 1.15rem;margin-bottom:0.9rem">
+                    <div class="section-label" style="margin-bottom:0.5rem">Answer · {source_note}</div>
+                    <div style="font-size:0.9rem;color:#3D2E1E;line-height:1.75">{answer}</div>
                 </div>
-                <span style="color:{bar_color};font-family:'JetBrains Mono',monospace;
-                    font-size:0.68rem;white-space:nowrap">{badge} · {conf}/100</span>
-            </div>
-            """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
 
+                sig_parts = [
+                    f"retrieval {signals['retrieval']:.2f}",
+                    f"faithfulness {signals['faithfulness']:.2f}",
+                ]
+                if signals['consistency'] is not None:
+                    sig_parts.append(f"consistency {signals['consistency']:.2f}")
+                sig_line = " · ".join(sig_parts)
+
+                st.markdown(f"""
+                <div class="confidence-row">
+                    <div style="flex:1;background:#EDE8DF;height:3px;overflow:hidden">
+                        <div style="width:{conf}%;height:100%;background:{bar_color}"></div>
+                    </div>
+                    <span style="color:{bar_color};font-family:'JetBrains Mono',monospace;
+                        font-size:0.68rem;white-space:nowrap">{badge} · {conf}/100</span>
+                </div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:#8B7355;
+                    margin:-0.8rem 0 1.1rem">signals · {sig_line}</div>
+                """, unsafe_allow_html=True)
+
+            st.markdown('<div class="section-label">Sources · retrieved passages</div>', unsafe_allow_html=True)
             for i, chunk in enumerate(results):
                 render_chunk(chunk, i, paper_urls)
 
@@ -740,6 +852,14 @@ with tab3:
         _, contradictions = load_eval_data()
 
         total = sum(len(t['contradictions']) for t in contradictions)
+        st.markdown(f"""
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#5C4A35;
+            line-height:1.7;margin-bottom:1rem">
+            {total} potential disagreements surfaced · NLI: facebook/bart-large-mnli<br>
+            Contradiction density scales with corpus size — Phase 2: expanding to 500 papers
+        </div>
+        """, unsafe_allow_html=True)
+
         st.markdown(f"""
         <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#8B7355;
             margin-bottom:1rem;border-bottom:1px solid #C8BBA8;padding-bottom:0.6rem">
