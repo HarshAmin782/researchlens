@@ -379,36 +379,35 @@ section[data-testid="stSidebar"] {
     color: #5C4A35;
 }
 
-/* Sidebar collapse button (rendered outside sidebar section) */
-[data-testid="stSidebarCollapseButton"] svg path,
-[data-testid="stSidebarCollapseButton"] svg {
-    fill: #1A1208 !important;
+/* Sidebar collapse/expand buttons — invert white icons to black, clear box */
+[data-testid="stSidebarCollapseButton"] button,
+[data-testid="collapsedControl"] button {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }
-/* Sidebar open button (when sidebar is collapsed) */
-[data-testid="collapsedControl"] svg path,
+[data-testid="stSidebarCollapseButton"] svg,
 [data-testid="collapsedControl"] svg {
-    fill: #1A1208 !important;
+    filter: invert(1) !important;
 }
 
-/* Toolbar icons — top-right area (three-dot menu, fullscreen, etc.) */
-[data-testid="stToolbar"] svg path,
-[data-testid="stToolbar"] svg {
-    fill: #1A1208 !important;
-    color: #1A1208 !important;
-}
+/* Toolbar icon buttons (three-dot menu, fullscreen, etc.) — clear box */
 [data-testid="stToolbar"] button {
     color: #1A1208 !important;
     background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+[data-testid="stToolbar"] button svg {
+    filter: invert(1) !important;
 }
 
-/* Header svg paths */
-header[data-testid="stHeader"] svg path,
-header[data-testid="stHeader"] svg {
-    fill: #1A1208 !important;
-}
+/* Header buttons — clear any box, text buttons already inherit color correctly */
 header[data-testid="stHeader"] button {
     color: #1A1208 !important;
     background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 </style>
 """, unsafe_allow_html=True)
