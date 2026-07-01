@@ -379,24 +379,32 @@ section[data-testid="stSidebar"] {
     color: #5C4A35;
 }
 
-/* Sidebar toggle button (open/close chevron) */
-[data-testid="collapsedControl"],
-[data-testid="collapsedControl"] svg,
-[data-testid="collapsedControl"] svg path {
-    color: #1A1208 !important;
+/* Sidebar collapse button (rendered outside sidebar section) */
+[data-testid="stSidebarCollapseButton"] svg path,
+[data-testid="stSidebarCollapseButton"] svg {
     fill: #1A1208 !important;
-    stroke: #1A1208 !important;
 }
-section[data-testid="stSidebar"] button svg,
-section[data-testid="stSidebar"] button svg path {
+/* Sidebar open button (when sidebar is collapsed) */
+[data-testid="collapsedControl"] svg path,
+[data-testid="collapsedControl"] svg {
     fill: #1A1208 !important;
-    stroke: #1A1208 !important;
 }
 
-/* Header — catch svg path elements missed by the fill rule above */
-header[data-testid="stHeader"] svg path {
+/* Toolbar icons — top-right area (three-dot menu, fullscreen, etc.) */
+[data-testid="stToolbar"] svg path,
+[data-testid="stToolbar"] svg {
     fill: #1A1208 !important;
-    stroke: #1A1208 !important;
+    color: #1A1208 !important;
+}
+[data-testid="stToolbar"] button {
+    color: #1A1208 !important;
+    background: transparent !important;
+}
+
+/* Header svg paths */
+header[data-testid="stHeader"] svg path,
+header[data-testid="stHeader"] svg {
+    fill: #1A1208 !important;
 }
 header[data-testid="stHeader"] button {
     color: #1A1208 !important;
