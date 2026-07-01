@@ -1,257 +1,178 @@
 [
   {
     "topic": "does fine-tuning always improve model performance",
-    "chunks_retrieved": 20,
-    "claims_extracted": 189,
-    "pairs_evaluated": 420,
+    "chunks_retrieved": 50,
+    "claims_extracted": 345,
+    "pairs_evaluated": 1986,
     "contradictions": [
       {
-        "claim_a": "This challenge has sparked the development of parameter-efficient fine-tuning (PEFT), which focuses on optimizing a select subset of parameters while keeping the rest fixed, significantly lowering computational and storage overheads.",
-        "paper_a": "See Further for Parameter Efficient Fine-tuning by Standing on the Shoulders of Decomposition",
-        "claim_b": "Although training a deep network from scratch using such dropout rates is virtually impossible, fine-tuning a large pre-trained model under such conditions is not only possible but also achieves out-of-distribution performances that exceed those of both ensembles and weight averaging methods such as model soups.",
-        "paper_b": "Fine-tuning with Very Large Dropout",
-        "contradiction_score": 0.492,
-        "claim_similarity": 0.433
+        "claim_a": "Monotonic performance improvement during fine-tuning is often challenging, as agents typically experience performance degradation at the early fine-tuning stage.",
+        "paper_a": "Fine-Tuning without Performance Degradation",
+        "claim_b": "In contrast, the many-shot fine-tuned model maintains strong performance when tested on unseen task types.",
+        "paper_b": "You Only Fine-tune Once: Many-Shot In-Context Fine-Tuning for Large Language Models",
+        "contradiction_score": 0.583,
+        "claim_similarity": 0.509,
+        "explanation": "The two claims disagree about when performance degradation during fine-tuning occurs: Paper A states it is common at the early stage, while Paper B claims the many-shot fine-tuned model maintains strong performance throughout."
       },
       {
-        "claim_a": "While more computationally expensive than fine-tuning, further pretraining is still much less resource intensive as pretraining the model from scratch and can be worth the cost when end task performance is critical.",
-        "paper_a": "Deep Transfer Learning & Beyond: Transformer Language Models in Information Systems Research",
-        "claim_b": "Although training a deep network from scratch using such dropout rates is virtually impossible, fine-tuning a large pre-trained model under such conditions is not only possible but also achieves out-of-distribution performances that exceed those of both ensembles and weight averaging methods such as model soups.",
-        "paper_b": "Fine-tuning with Very Large Dropout",
-        "contradiction_score": 0.484,
-        "claim_similarity": 0.55
+        "claim_a": "In the literature, various hypotheses and investigations were made to understand the performance degradation during fine-tuning.",
+        "paper_a": "Fine-Tuning without Performance Degradation",
+        "claim_b": "While this approach of fine-tuning can be much more scalable compared to supervised fine-tuning because of the availability of data, the results of the fine-tuned model won\u2019t be as robust.",
+        "paper_b": "Improving Retrieval for RAG based Question Answering Models on Financial Documents",
+        "contradiction_score": 0.543,
+        "claim_similarity": 0.524,
+        "explanation": "The claims disagree about the robustness of the fine-tuned model's performance. Paper A does not mention robustness, while Paper B states that the fine-tuned model won't be as robust as models fine-tuned using more data and resources."
       },
       {
-        "claim_a": "Surpassing Fully Fine-Tuning Performance: While LoRA typically falls short of the results achieved by fully fine-tuning, our methods in some cases outperform fully fine-tuning.",
-        "paper_a": "Task-Specific Directions: Definition, Exploration, and Utilization in Parameter Efficient Fine-Tuning",
-        "claim_b": "However, RL-based methods face limitations concerning training efficiency and complexity; 2) Supervised Fine-tuning with Ranking (Liu et al., 2022;",
-        "paper_b": "Making Large Language Models Better Reasoners with Alignment",
-        "contradiction_score": 0.484,
-        "claim_similarity": 0.56
+        "claim_a": "In contrast, the many-shot fine-tuned model maintains strong performance when tested on unseen task types.",
+        "paper_a": "You Only Fine-tune Once: Many-Shot In-Context Fine-Tuning for Large Language Models",
+        "claim_b": "We evaluate the robustness and accuracy of fine-tuned models over 6 benchmark datasets and 7 different fine-tuning strategies.",
+        "paper_b": "On the Robustness Tradeoff in Fine-Tuning",
+        "contradiction_score": 0.502,
+        "claim_similarity": 0.513,
+        "explanation": "The claims do not genuinely conflict. Paper A is making a general statement about the performance of many-shot fine-tuned models on unseen task types, while Paper B is specifically evaluating the robustness and accuracy of fine-tuned models across multiple datasets and strategies."
       },
       {
-        "claim_a": "This result has practical significance because the importance of the fine-tuning scenario has considerably grown in recent years.",
-        "paper_a": "Fine-tuning with Very Large Dropout",
-        "claim_b": "However, RL-based methods face limitations concerning training efficiency and complexity; 2) Supervised Fine-tuning with Ranking (Liu et al., 2022;",
-        "paper_b": "Making Large Language Models Better Reasoners with Alignment",
-        "contradiction_score": 0.481,
-        "claim_similarity": 0.462
+        "claim_a": "To better understand fine-tuning mechanisms in practical settings, it is crucial to focus on tasks where fine-tuning leads to performance improvements.",
+        "paper_a": "Towards Understanding Fine-Tuning Mechanisms of LLMs via Circuit Analysis",
+        "claim_b": "Thus, the exorbitant cost of \ufb01ne tuning becomes a limiting factor for data scientists in developing new models.",
+        "paper_b": "AutoFreeze: Automatically Freezing Model Blocks to Accelerate Fine-tuning",
+        "contradiction_score": 0.49,
+        "claim_similarity": 0.498,
+        "explanation": "The two claims disagree about the cost and necessity of fine-tuning in ML model development. Paper A emphasizes the importance and performance improvements of fine-tuning, while Paper B highlights the exorbitant cost that can limit data scientists."
       },
       {
-        "claim_a": "Fine-tuning is akin to a closed-book exam: the model internalizes domain knowledge during training and must rely solely on that knowledge at inference.",
-        "paper_a": "MUST-RAG: MUSical Text Question Answering with Retrieval Augmented Generation",
-        "claim_b": "Surpassing Fully Fine-Tuning Performance: While LoRA typically falls short of the results achieved by fully fine-tuning, our methods in some cases outperform fully fine-tuning.",
-        "paper_b": "Task-Specific Directions: Definition, Exploration, and Utilization in Parameter Efficient Fine-Tuning",
-        "contradiction_score": 0.479,
-        "claim_similarity": 0.465
+        "claim_a": "Although fine-tuning is crucial for improving LLM performance in specific tasks, it can also lead to unintended side effects.",
+        "paper_a": "On the Impact of Fine-Tuning on Chain-of-Thought Reasoning",
+        "claim_b": "Fine-tuning also enables us to train the model to get consistent outputs via instruction fine-tuning.",
+        "paper_b": "Improving Retrieval for RAG based Question Answering Models on Financial Documents",
+        "contradiction_score": 0.489,
+        "claim_similarity": 0.56,
+        "explanation": "The two claims disagree about the potential effects of fine-tuning on model consistency. Paper A suggests that fine-tuning can lead to unintended side effects that may negatively impact consistency, while Paper B asserts that fine-tuning can help improve consistency through instruction fine-tuning"
       },
       {
-        "claim_a": "These results represent a substantial and statistically significant improvement compared to the baseline performance of the un-tuned model.",
-        "paper_a": "Case Study: Fine-tuning Small Language Models for Accurate and Private CWE Detection in Python Code",
-        "claim_b": "However, RL-based methods face limitations concerning training efficiency and complexity; 2) Supervised Fine-tuning with Ranking (Liu et al., 2022;",
-        "paper_b": "Making Large Language Models Better Reasoners with Alignment",
-        "contradiction_score": 0.478,
-        "claim_similarity": 0.456
+        "claim_a": "Thus, the exorbitant cost of \ufb01ne tuning becomes a limiting factor for data scientists in developing new models.",
+        "paper_a": "AutoFreeze: Automatically Freezing Model Blocks to Accelerate Fine-tuning",
+        "claim_b": "The fine-tuning associated with models featuring an inflection point has also been studied in [28,29].",
+        "paper_b": "Mechanisms for producing Primordial Black Holes from Inflationary Models Beyond Fine-Tuning",
+        "contradiction_score": 0.486,
+        "claim_similarity": 0.463,
+        "explanation": "The first paper claims that the high cost of fine-tuning is a limiting factor for data scientists, while the second paper mentions that fine-tuning models with an inflection point has been studied, but it does not imply any cost or limitation associated with it. Therefore, NOT_A"
       },
       {
-        "claim_a": "Fine-tuning is akin to a closed-book exam: the model internalizes domain knowledge during training and must rely solely on that knowledge at inference.",
-        "paper_a": "MUST-RAG: MUSical Text Question Answering with Retrieval Augmented Generation",
-        "claim_b": "While more computationally expensive than fine-tuning, further pretraining is still much less resource intensive as pretraining the model from scratch and can be worth the cost when end task performance is critical.",
-        "paper_b": "Deep Transfer Learning & Beyond: Transformer Language Models in Information Systems Research",
-        "contradiction_score": 0.474,
-        "claim_similarity": 0.435
+        "claim_a": "While this approach of fine-tuning can be much more scalable compared to supervised fine-tuning because of the availability of data, the results of the fine-tuned model won\u2019t be as robust.",
+        "paper_a": "Improving Retrieval for RAG based Question Answering Models on Financial Documents",
+        "claim_b": "These results show that zero-shot, few-shot, and autoregressive fine-tuning perform worse than the base model, indicating significant forgetting on out-of-domain tasks.",
+        "paper_b": "You Only Fine-tune Once: Many-Shot In-Context Fine-Tuning for Large Language Models",
+        "contradiction_score": 0.468,
+        "claim_similarity": 0.439,
+        "explanation": "The two claims disagree about the robustness and forgetting of fine-tuned models, with Paper A suggesting that fine-tuning may be less robust but more scalable, while Paper B indicates that fine-tuning can lead to significant forgetting on out-of-domain tasks."
       },
       {
-        "claim_a": "Parameter Efficient Fine-Tuning (PEFT) offers an effective solution by reducing the parameters and memory needed for adaptation to a variety of downstream tasks while maintaining performance levels similar to full fine-tuning , .",
-        "paper_a": "Task-Specific Directions: Definition, Exploration, and Utilization in Parameter Efficient Fine-Tuning",
-        "claim_b": "These results represent a substantial and statistically significant improvement compared to the baseline performance of the un-tuned model.",
-        "paper_b": "Case Study: Fine-tuning Small Language Models for Accurate and Private CWE Detection in Python Code",
-        "contradiction_score": 0.474,
-        "claim_similarity": 0.447
+        "claim_a": "Lastly, compressed LMs with the same number of parameters can have varying performance due to differences in weight initialization after compression.",
+        "paper_a": "Are Compressed Language Models Less Subgroup Robust?",
+        "claim_b": "Our results find that fine-tuning the LLMs to create a specialized model does not lead to better performance of the models.",
+        "paper_b": "Prompting and Fine-Tuning Open-Sourced Large Language Models for Stance Classification",
+        "contradiction_score": 0.457,
+        "claim_similarity": 0.463,
+        "explanation": "The two claims disagree about the impact of fine-tuning and weight initialization on the performance of compressed language models. While Paper A suggests that differences in weight initialization after compression can result in varying performance among models with the same number of parameters, Paper B claims that fine-tuning does not lead"
       },
       {
-        "claim_a": "Fine-tuning is akin to a closed-book exam: the model internalizes domain knowledge during training and must rely solely on that knowledge at inference.",
-        "paper_a": "MUST-RAG: MUSical Text Question Answering with Retrieval Augmented Generation",
-        "claim_b": "Parameter Efficient Fine-Tuning (PEFT) offers an effective solution by reducing the parameters and memory needed for adaptation to a variety of downstream tasks while maintaining performance levels similar to full fine-tuning , .",
-        "paper_b": "Task-Specific Directions: Definition, Exploration, and Utilization in Parameter Efficient Fine-Tuning",
-        "contradiction_score": 0.467,
-        "claim_similarity": 0.494
+        "claim_a": "These results show that zero-shot, few-shot, and autoregressive fine-tuning perform worse than the base model, indicating significant forgetting on out-of-domain tasks.",
+        "paper_a": "You Only Fine-tune Once: Many-Shot In-Context Fine-Tuning for Large Language Models",
+        "claim_b": "Fine-Tuning Without Forgetting In-Context Learning: A Theoretical Analysis of Linear Attention Models At the same time, recall that few-shot performance in the pretrained model relies on the query-key matrix Q, and in particular on the condition Q11 = \u03a3\u22121 in Corollary 4.1.",
+        "paper_b": "Fine-Tuning Without Forgetting In-Context Learning: A Theoretical Analysis of Linear Attention Models",
+        "contradiction_score": 0.443,
+        "claim_similarity": 0.665,
+        "explanation": "The two claims disagree about the performance of fine-tuning methods, with Paper A stating that they perform worse than the base model due to forgetting on out-of-domain tasks, while Paper B suggests that fine-tuning without forgetting is theoretically possible for linear attention models based on"
       },
       {
-        "claim_a": "These results represent a substantial and statistically significant improvement compared to the baseline performance of the un-tuned model.",
-        "paper_a": "Case Study: Fine-tuning Small Language Models for Accurate and Private CWE Detection in Python Code",
-        "claim_b": "Overall, we find that fine-tuning on existing individuals does not lead to fast performance drop fine-tuning on new individuals has (Figure P).",
-        "paper_b": "How do language models learn facts? Dynamics, curricula and hallucinations",
-        "contradiction_score": 0.453,
-        "claim_similarity": 0.579
-      },
-      {
-        "claim_a": "Fine-tuning is akin to a closed-book exam: the model internalizes domain knowledge during training and must rely solely on that knowledge at inference.",
-        "paper_a": "MUST-RAG: MUSical Text Question Answering with Retrieval Augmented Generation",
-        "claim_b": "However, RL-based methods face limitations concerning training efficiency and complexity; 2) Supervised Fine-tuning with Ranking (Liu et al., 2022;",
-        "paper_b": "Making Large Language Models Better Reasoners with Alignment",
-        "contradiction_score": 0.451,
-        "claim_similarity": 0.586
-      },
-      {
-        "claim_a": "Importantly, the fine-tuning approach outperformed the neural network probing classifier which demonstrates that without fine-tuning the LLaMA model does not contain sufficient information for a better performance.",
-        "paper_a": "Classifying German Language Proficiency Levels Using Large Language Models",
-        "claim_b": "Although training a deep network from scratch using such dropout rates is virtually impossible, fine-tuning a large pre-trained model under such conditions is not only possible but also achieves out-of-distribution performances that exceed those of both ensembles and weight averaging methods such as model soups.",
-        "paper_b": "Fine-tuning with Very Large Dropout",
-        "contradiction_score": 0.444,
-        "claim_similarity": 0.519
-      },
-      {
-        "claim_a": "Like further pretraining, pre-finetuning is performed on an already pretrained model in order to further refine representations prior to end-task fine-tuning.",
-        "paper_a": "Deep Transfer Learning & Beyond: Transformer Language Models in Information Systems Research",
-        "claim_b": "However, RL-based methods face limitations concerning training efficiency and complexity; 2) Supervised Fine-tuning with Ranking (Liu et al., 2022;",
-        "paper_b": "Making Large Language Models Better Reasoners with Alignment",
-        "contradiction_score": 0.43,
-        "claim_similarity": 0.454
-      },
-      {
-        "claim_a": "While more computationally expensive than fine-tuning, further pretraining is still much less resource intensive as pretraining the model from scratch and can be worth the cost when end task performance is critical.",
-        "paper_a": "Deep Transfer Learning & Beyond: Transformer Language Models in Information Systems Research",
-        "claim_b": "However, RL-based methods face limitations concerning training efficiency and complexity; 2) Supervised Fine-tuning with Ranking (Liu et al., 2022;",
-        "paper_b": "Making Large Language Models Better Reasoners with Alignment",
-        "contradiction_score": 0.427,
-        "claim_similarity": 0.427
-      },
-      {
-        "claim_a": "Moreover, these theoretical results can guide the improvement of other fine-tuning algorithms and even aid in the design of more efficient ones.",
-        "paper_a": "Theoretical Insights into Fine-Tuning Attention Mechanism: Generalization and Optimization",
-        "claim_b": "However, RL-based methods face limitations concerning training efficiency and complexity; 2) Supervised Fine-tuning with Ranking (Liu et al., 2022;",
-        "paper_b": "Making Large Language Models Better Reasoners with Alignment",
-        "contradiction_score": 0.421,
-        "claim_similarity": 0.5
-      },
-      {
-        "claim_a": "Except for Llama3.2 and Mistral in the Polarity Profile Control task, models fine-tuned through our method always outperform their associated pretrained baselines.",
-        "paper_a": "Conversational Control with Ontologies for Large Language Models: A Lightweight Framework for Constrained Generation",
-        "claim_b": "However, RL-based methods face limitations concerning training efficiency and complexity; 2) Supervised Fine-tuning with Ranking (Liu et al., 2022;",
-        "paper_b": "Making Large Language Models Better Reasoners with Alignment",
-        "contradiction_score": 0.42,
-        "claim_similarity": 0.427
-      },
-      {
-        "claim_a": "Surpassing Fully Fine-Tuning Performance: While LoRA typically falls short of the results achieved by fully fine-tuning, our methods in some cases outperform fully fine-tuning.",
-        "paper_a": "Task-Specific Directions: Definition, Exploration, and Utilization in Parameter Efficient Fine-Tuning",
-        "claim_b": "Although training a deep network from scratch using such dropout rates is virtually impossible, fine-tuning a large pre-trained model under such conditions is not only possible but also achieves out-of-distribution performances that exceed those of both ensembles and weight averaging methods such as model soups.",
-        "paper_b": "Fine-tuning with Very Large Dropout",
-        "contradiction_score": 0.42,
-        "claim_similarity": 0.512
-      },
-      {
-        "claim_a": "Fine-tuning is akin to a closed-book exam: the model internalizes domain knowledge during training and must rely solely on that knowledge at inference.",
-        "paper_a": "MUST-RAG: MUSical Text Question Answering with Retrieval Augmented Generation",
-        "claim_b": "These results represent a substantial and statistically significant improvement compared to the baseline performance of the un-tuned model.",
-        "paper_b": "Case Study: Fine-tuning Small Language Models for Accurate and Private CWE Detection in Python Code",
-        "contradiction_score": 0.418,
-        "claim_similarity": 0.497
-      },
-      {
-        "claim_a": "Fine-tuning is akin to a closed-book exam: the model internalizes domain knowledge during training and must rely solely on that knowledge at inference.",
-        "paper_a": "MUST-RAG: MUSical Text Question Answering with Retrieval Augmented Generation",
-        "claim_b": "Overall, we find that fine-tuning on existing individuals does not lead to fast performance drop fine-tuning on new individuals has (Figure P).",
-        "paper_b": "How do language models learn facts? Dynamics, curricula and hallucinations",
-        "contradiction_score": 0.417,
-        "claim_similarity": 0.502
-      },
-      {
-        "claim_a": "Moreover, these theoretical results can guide the improvement of other fine-tuning algorithms and even aid in the design of more efficient ones.",
-        "paper_a": "Theoretical Insights into Fine-Tuning Attention Mechanism: Generalization and Optimization",
-        "claim_b": "Parameter Efficient Fine-Tuning (PEFT) offers an effective solution by reducing the parameters and memory needed for adaptation to a variety of downstream tasks while maintaining performance levels similar to full fine-tuning , .",
-        "paper_b": "Task-Specific Directions: Definition, Exploration, and Utilization in Parameter Efficient Fine-Tuning",
-        "contradiction_score": 0.417,
-        "claim_similarity": 0.619
-      },
-      {
-        "claim_a": "Importantly, the fine-tuning approach outperformed the neural network probing classifier which demonstrates that without fine-tuning the LLaMA model does not contain sufficient information for a better performance.",
-        "paper_a": "Classifying German Language Proficiency Levels Using Large Language Models",
-        "claim_b": "However, RL-based methods face limitations concerning training efficiency and complexity; 2) Supervised Fine-tuning with Ranking (Liu et al., 2022;",
-        "paper_b": "Making Large Language Models Better Reasoners with Alignment",
-        "contradiction_score": 0.415,
-        "claim_similarity": 0.483
-      },
-      {
-        "claim_a": "Looking at the F1 score ranges, we also observe that fine-tuning allows all classes to be generated, which is not the case when using the pre-trained Llama3 in both use-cases.",
-        "paper_a": "Conversational Control with Ontologies for Large Language Models: A Lightweight Framework for Constrained Generation",
-        "claim_b": "Although training a deep network from scratch using such dropout rates is virtually impossible, fine-tuning a large pre-trained model under such conditions is not only possible but also achieves out-of-distribution performances that exceed those of both ensembles and weight averaging methods such as model soups.",
-        "paper_b": "Fine-tuning with Very Large Dropout",
-        "contradiction_score": 0.412,
-        "claim_similarity": 0.443
-      },
-      {
-        "claim_a": "Fine-tuning is akin to a closed-book exam: the model internalizes domain knowledge during training and must rely solely on that knowledge at inference.",
-        "paper_a": "MUST-RAG: MUSical Text Question Answering with Retrieval Augmented Generation",
-        "claim_b": "This result has practical significance because the importance of the fine-tuning scenario has considerably grown in recent years.",
-        "paper_b": "Fine-tuning with Very Large Dropout",
-        "contradiction_score": 0.41,
-        "claim_similarity": 0.509
-      },
-      {
-        "claim_a": "This series of experiments clearly demonstrates that our theoretical insights effectively enhance finetuning algorithms, particularly in terms of memory usage and optimization efficiency.",
-        "paper_a": "Theoretical Insights into Fine-Tuning Attention Mechanism: Generalization and Optimization",
-        "claim_b": "However, RL-based methods face limitations concerning training efficiency and complexity; 2) Supervised Fine-tuning with Ranking (Liu et al., 2022;",
-        "paper_b": "Making Large Language Models Better Reasoners with Alignment",
-        "contradiction_score": 0.407,
-        "claim_similarity": 0.507
-      },
-      {
-        "claim_a": "The fine-tuned model’s ability to consistently place texts within the correct region of the proficiency spectrum, even if not always at the exact level, demonstrates its reliability as a tool for language assessment support.",
-        "paper_a": "Classifying German Language Proficiency Levels Using Large Language Models",
-        "claim_b": "However, RL-based methods face limitations concerning training efficiency and complexity; 2) Supervised Fine-tuning with Ranking (Liu et al., 2022;",
-        "paper_b": "Making Large Language Models Better Reasoners with Alignment",
-        "contradiction_score": 0.407,
-        "claim_similarity": 0.405
-      },
-      {
-        "claim_a": "Importantly, the fine-tuning approach outperformed the neural network probing classifier which demonstrates that without fine-tuning the LLaMA model does not contain sufficient information for a better performance.",
-        "paper_a": "Classifying German Language Proficiency Levels Using Large Language Models",
-        "claim_b": "Overall, we find that fine-tuning on existing individuals does not lead to fast performance drop fine-tuning on new individuals has (Figure P).",
-        "paper_b": "How do language models learn facts? Dynamics, curricula and hallucinations",
-        "contradiction_score": 0.404,
-        "claim_similarity": 0.418
-      },
-      {
-        "claim_a": "While more computationally expensive than fine-tuning, further pretraining is still much less resource intensive as pretraining the model from scratch and can be worth the cost when end task performance is critical.",
-        "paper_a": "Deep Transfer Learning & Beyond: Transformer Language Models in Information Systems Research",
-        "claim_b": "This result has practical significance because the importance of the fine-tuning scenario has considerably grown in recent years.",
-        "paper_b": "Fine-tuning with Very Large Dropout",
-        "contradiction_score": 0.401,
-        "claim_similarity": 0.446
+        "claim_a": "As such, it is hard to further use the fine-tuned model when it encounters classes beyond the fine-tuning data.",
+        "paper_a": "Fine-Tuning is Fine, if Calibrated",
+        "claim_b": "Except for Llama3.2 and Mistral in the Polarity Profile Control task, models fine-tuned through our method always outperform their associated pretrained baselines.",
+        "paper_b": "Conversational Control with Ontologies for Large Language Models: A Lightweight Framework for Constrained Generation",
+        "contradiction_score": 0.44,
+        "claim_similarity": 0.477,
+        "explanation": "The claims disagree about the performance of fine-tuned models when encountering classes beyond their fine-tuning data versus their performance in outperforming pretrained baselines. Specifically, Paper A suggests that fine-tuned models may not perform well when dealing with new classes, while"
       }
     ]
   },
   {
     "topic": "optimal learning rate for transformer training",
-    "chunks_retrieved": 20,
-    "claims_extracted": 138,
-    "pairs_evaluated": 180,
+    "chunks_retrieved": 50,
+    "claims_extracted": 228,
+    "pairs_evaluated": 613,
     "contradictions": [
       {
-        "claim_a": "Given the unique architecture of Transformer, featuring alternative attention and feedforward neural network (FFN) modules, specific compression techniques are usually required.",
-        "paper_a": "A Survey on Transformer Compression",
-        "claim_b": "that fine-tuning the transformer models can yield better performance than the traditional methods that use handcrafted features and other deep learning models like CNN and LSTM trained on distributed word representation.",
-        "paper_b": "A Review of Bangla Natural Language Processing Tasks and the Utility of Transformer Models",
-        "contradiction_score": 0.419,
-        "claim_similarity": 0.566
+        "claim_a": "We also tune the head dimension for each Transformer and FoX model, along with learning rates.",
+        "paper_a": "Forgetting Transformer: Softmax Attention with a Forget Gate",
+        "claim_b": "The Transformer-based model consistently outperforms the baseline MLP, with fine-tuning further enhancing the results, surpassing the state-of-the-art by a large margin in all metrics.",
+        "paper_b": "Toward a Spectral Foundation Model: An Attention-Based Approach with Domain-Inspired Fine-Tuning and Wavelength Parameterization",
+        "contradiction_score": 0.509,
+        "claim_similarity": 0.52,
+        "explanation": "The claims do not genuinely conflict. Paper A is discussing hyperparameter tuning for the Transformer model mentioned in Paper B, while Paper B is reporting the superior performance of the Transformer model over a baseline MLP and achieving state-of-the-art results."
       },
       {
-        "claim_a": "However, the multi-task nature of pre-training and huge computational in the retraining phase also lead to critical issues to be addressed for pruning large Transformer models, as detailed later.",
-        "paper_a": "A Survey on Transformer Compression",
-        "claim_b": "that fine-tuning the transformer models can yield better performance than the traditional methods that use handcrafted features and other deep learning models like CNN and LSTM trained on distributed word representation.",
-        "paper_b": "A Review of Bangla Natural Language Processing Tasks and the Utility of Transformer Models",
-        "contradiction_score": 0.406,
-        "claim_similarity": 0.596
+        "claim_a": "Any model performing better than this baseline must necessarily have acquired some knowledge about specific individuals in the training distribution.",
+        "paper_a": "How do language models learn facts? Dynamics, curricula and hallucinations",
+        "claim_b": "Yet, most Portuguese models focus primarily on accuracy, offering limited insight into training efficiency, hardware utilization, or deployment tradeoffs.",
+        "paper_b": "PortBERT: Navigating the Depths of Portuguese Language Models",
+        "contradiction_score": 0.483,
+        "claim_similarity": 0.457,
+        "explanation": "The claims do not genuinely conflict. Paper A is discussing the capability of language models to learn specific facts, while Paper B is focusing on the priorities and limitations of Portuguese language models in terms of accuracy, efficiency, hardware utilization, and deployment tradeoffs."
+      },
+      {
+        "claim_a": "The Transformer-based model consistently outperforms the baseline MLP, with fine-tuning further enhancing the results, surpassing the state-of-the-art by a large margin in all metrics.",
+        "paper_a": "Toward a Spectral Foundation Model: An Attention-Based Approach with Domain-Inspired Fine-Tuning and Wavelength Parameterization",
+        "claim_b": "Given the unique architecture of Transformer, featuring alternative attention and feedforward neural network (FFN) modules, specific compression techniques are usually required.",
+        "paper_b": "A Survey on Transformer Compression",
+        "contradiction_score": 0.479,
+        "claim_similarity": 0.523,
+        "explanation": "The claims do not genuinely conflict. Paper A is making a statement about the performance of a Transformer-based model compared to an MLP, while Paper B is discussing the need for specific compression techniques due to the unique architecture of Transformers. These statements are not directly contradictory."
+      },
+      {
+        "claim_a": "However, when training the the MHFA back-end (from random initialization) with learning rate 1e-3 and simultaneously \ufb01ne-tuning the Transformer encoder with a low learning rate an excellent performance can be achieved.",
+        "paper_a": "An attention-based backend allowing efficient fine-tuning of transformer models for speaker verification",
+        "claim_b": "However, the multi-task nature of pre-training and huge computational in the retraining phase also lead to critical issues to be addressed for pruning large Transformer models, as detailed later.",
+        "paper_b": "A Survey on Transformer Compression",
+        "contradiction_score": 0.459,
+        "claim_similarity": 0.559,
+        "explanation": "The claims do not genuinely conflict. Paper A is discussing the effectiveness of fine-tuning the Transformer encoder with a low learning rate while training the MHFA back-end, while Paper B is discussing the challenges of pruning large Transformer models due to the computational requirements of the"
       }
     ]
   },
   {
     "topic": "retrieval augmented generation versus fine-tuning",
-    "chunks_retrieved": 20,
-    "claims_extracted": 149,
-    "pairs_evaluated": 242,
-    "contradictions": []
+    "chunks_retrieved": 50,
+    "claims_extracted": 250,
+    "pairs_evaluated": 1301,
+    "contradictions": [
+      {
+        "claim_a": "When to Use RAG: Considerations for Practitioners Choosing between fine-tuning, using Retrieval Augmented Generation (RAG), or base models can be a challenging decision for practitioners.",
+        "paper_a": "Developing Retrieval Augmented Generation (RAG) based LLM Systems from PDFs: An Experience Report",
+        "claim_b": "Given the powerful abilities of RAG in providing the latest and helpful auxiliary information, RetrievalAugmented Large Language Models (RA-LLMs) have emerged to harness external and authoritative knowledge bases, rather than solely relying on the model\u2019s internal knowledge, to augment the generation quality of LLMs.",
+        "paper_b": "A Survey on RAG Meeting LLMs: Towards Retrieval-Augmented Large Language Models",
+        "contradiction_score": 0.443,
+        "claim_similarity": 0.522,
+        "explanation": "The two claims disagree about the reason why practitioners might choose to use Retrieval Augmented Generation (RAG) over fine-tuning or base models. Paper A suggests that the decision to use RAG is a challenging one that requires consideration, while Paper B asserts that RAG"
+      }
+    ]
+  },
+  {
+    "topic": "attention mechanisms in transformer models",
+    "chunks_retrieved": 50,
+    "claims_extracted": 331,
+    "pairs_evaluated": 968,
+    "contradictions": [
+      {
+        "claim_a": "The attention architecture can process variable-length input sequences and flexibly select important tokens based on the input.",
+        "paper_a": "Benign Overfitting in Token Selection of Attention Mechanism",
+        "claim_b": "However, current window-based attention restricts the attention area of the tokens within the hand-crafted \ufb01xed-size window at each transformer layer.",
+        "paper_b": "Vision Transformer with Quadrangle Attention",
+        "contradiction_score": 0.469,
+        "claim_similarity": 0.554,
+        "explanation": "The claims disagree about the flexibility of the attention mechanism in processing input sequences and selecting important tokens. Paper A states that attention architecture can flexibly select tokens based on the input, while Paper B points out that current window-based attention restricts the attention area of tokens within a fixed-size window."
+      }
+    ]
   }
 ]

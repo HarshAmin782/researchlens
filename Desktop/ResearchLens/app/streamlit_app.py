@@ -324,6 +324,7 @@ section[data-testid="stSidebar"] {
 .stTextInput > div > div > input {
     background-color: white !important;
     color: #1A1208 !important;
+    caret-color: #1A1208 !important;
     border: 1px solid #C8BBA8 !important;
     border-radius: 2px !important;
     font-family: 'Source Serif 4', Georgia, serif !important;
@@ -376,6 +377,30 @@ section[data-testid="stSidebar"] {
     background: #EDE8DF;
     border: 1px solid #C8BBA8;
     color: #5C4A35;
+}
+
+/* Sidebar toggle button (open/close chevron) */
+[data-testid="collapsedControl"],
+[data-testid="collapsedControl"] svg,
+[data-testid="collapsedControl"] svg path {
+    color: #1A1208 !important;
+    fill: #1A1208 !important;
+    stroke: #1A1208 !important;
+}
+section[data-testid="stSidebar"] button svg,
+section[data-testid="stSidebar"] button svg path {
+    fill: #1A1208 !important;
+    stroke: #1A1208 !important;
+}
+
+/* Header — catch svg path elements missed by the fill rule above */
+header[data-testid="stHeader"] svg path {
+    fill: #1A1208 !important;
+    stroke: #1A1208 !important;
+}
+header[data-testid="stHeader"] button {
+    color: #1A1208 !important;
+    background: transparent !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -643,8 +668,8 @@ with st.sidebar:
     st.markdown('<div class="rule-single"></div>', unsafe_allow_html=True)
     st.markdown("""
     <div style="font-size:0.7rem;color:#8B7355;line-height:2;font-family:'JetBrains Mono',monospace">
-        Corpus · 100 arXiv papers<br>
-        Chunks · 3,205 fixed · 3,427 semantic<br>
+        Corpus · 505 arXiv papers<br>
+        Chunks · 14,500 fixed · 15,476 semantic<br>
         Generator · Mistral-7B-Instruct<br>
         Embeddings · all-MiniLM-L6-v2<br>
         NLI · bart-large-mnli
@@ -783,7 +808,7 @@ with tab2:
         st.markdown("""
         <div class="stats-strip">
             <div class="stat-cell">
-                <span class="stat-num">100</span>
+                <span class="stat-num">505</span>
                 <span class="stat-cap">arXiv papers</span>
             </div>
             <div class="stat-cell">
@@ -856,14 +881,14 @@ with tab3:
         <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#5C4A35;
             line-height:1.7;margin-bottom:1rem">
             {total} potential disagreements surfaced · NLI: facebook/bart-large-mnli<br>
-            Contradiction density scales with corpus size — Phase 2: expanding to 500 papers
+            Corpus expanded to 505 papers across 4 ML topics · contradiction threshold 0.40
         </div>
         """, unsafe_allow_html=True)
 
         st.markdown(f"""
         <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#8B7355;
             margin-bottom:1rem;border-bottom:1px solid #C8BBA8;padding-bottom:0.6rem">
-            {total} contradictions detected across 3 topics · NLI: facebook/bart-large-mnli · threshold 0.45
+            {total} contradictions detected across 4 topics · NLI: facebook/bart-large-mnli · threshold 0.40
         </div>
         """, unsafe_allow_html=True)
 

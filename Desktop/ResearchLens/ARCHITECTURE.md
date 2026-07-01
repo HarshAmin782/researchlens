@@ -176,8 +176,8 @@ confidence = (
 **Evaluation set:** 50 QA pairs from QASPER (allenai/qasper), filtered to free-form answers with length > 10 characters.
 
 **Chunking stats:**
-- Fixed chunks: 3,205 total, ~512 words average
-- Semantic chunks: 3,427 total, ~400 words average
+- Fixed chunks: 14,500 total, ~512 words average
+- Semantic chunks: 15,476 total, ~400 words average
 
 ---
 

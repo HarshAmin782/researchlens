@@ -71,7 +71,7 @@ Hybrid + Reranker achieves **+9.2% faithfulness** over Naive RAG at only **+14% 
 | NLI | facebook/bart-large-mnli | Free |
 | Vector store | ChromaDB | Free |
 | Keyword search | BM25 (rank_bm25) | Free |
-| Papers | arXiv API (100 ML/AI papers) | Free |
+| Papers | arXiv API (505 ML/AI papers) | Free |
 | Evaluation | QASPER benchmark + custom metrics | Free |
 | Demo | Streamlit Cloud | Free |
 
@@ -146,7 +146,7 @@ RAGAS 0.4 requires an external LLM API for all metrics and the free tier (Groq) 
 
 ## What's Next
 
-- Expand corpus from 100 to 500+ papers for richer contradiction detection
+- ~~Expand corpus from 100 to 500+ papers~~ ✓ Done — 505 papers, 29,976 chunks
 - Fine-tune the query router to replace the keyword classifier
 - Add real-time arXiv paper fetching during queries
 - Multi-modal support for figures and tables in papers
