@@ -1,6 +1,6 @@
-Strategy,Faithfulness,Context Precision,Answer Relevance,Avg Latency (ms)
-A · Naive RAG,0.666,0.688,0.359,17022
-B · Semantic RAG,0.647,0.66,0.411,17863
-C · Hybrid RAG,0.701,0.364,0.341,17656
-D · Hybrid + Reranker,0.727,0.384,0.356,19418
-Adaptive Router,0.697,0.652,0.356,17366
+Strategy,Faithfulness,Context Precision,Answer Relevance,Correctness,% Correct,Avg Latency (ms)
+A · Naive RAG,0.718,1.000,0.549,0.483,40.0,9669
+B · Semantic RAG,0.716,1.000,0.556,0.504,50.0,9525
+C · Hybrid RAG,0.811,0.876,0.525,0.515,56.0,11494
+D · Hybrid + Reranker,0.833,0.888,0.530,0.527,64.0,12047
+Adaptive Router,0.785,0.892,0.509,0.504,60.0,11133

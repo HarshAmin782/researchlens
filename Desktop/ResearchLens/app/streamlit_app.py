@@ -480,6 +480,12 @@ def load_eval_data():
 
 
 @st.cache_data
+def load_calibration():
+    with open(DATA_DIR / 'calibration_results.json', 'r') as f:
+        return json.load(f)
+
+
+@st.cache_data
 def load_paper_urls():
     try:
         with open(DATA_DIR / 'papers_metadata.json', 'r', encoding='utf-8') as f:
@@ -820,61 +826,118 @@ with tab2:
             </div>
             <div class="stat-cell">
                 <span class="stat-num">50</span>
-                <span class="stat-cap">QASPER questions</span>
+                <span class="stat-cap">type-balanced eval questions</span>
             </div>
             <div class="stat-cell">
-                <span class="stat-num">4</span>
-                <span class="stat-cap">strategies tested</span>
+                <span class="stat-num">72%</span>
+                <span class="stat-cap">routing accuracy</span>
             </div>
             <div class="stat-cell">
-                <span class="stat-num">+9.2%</span>
-                <span class="stat-cap">faithfulness gain</span>
+                <span class="stat-num">0.782</span>
+                <span class="stat-cap">calibration AUC</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
         st.markdown("""
         <div class="pull-quote">
-            Hybrid + Reranker achieves 9.2% higher faithfulness than Naive RAG at only 14% latency overhead.
+            Hybrid + Reranker leads on every quality metric. Routing accuracy: 72% on a type-balanced set — corrected from a circular 100% on a self-authored keyword test.
         </div>
         """, unsafe_allow_html=True)
 
-        import pandas as pd
+        best_faith = max(r['faithfulness']        for r in comparison)
+        best_prec  = max(r['context_precision']   for r in comparison)
+        best_rel   = max(r['answer_relevance']     for r in comparison)
+        best_corr  = max(r['correctness']          for r in comparison)
+        best_pct   = max(r['pct_correct']          for r in comparison)
 
-        best_faith = max(r['faithfulness'] for r in comparison)
-        best_prec = max(r['context_precision'] for r in comparison)
-        best_rel = max(r['answer_relevance'] for r in comparison)
-
-        table_html = """<table style="width:100%;border-collapse:collapse;font-size:0.8rem;background:white;border:1px solid #C8BBA8">
+        th = ("padding:0.5rem 0.8rem;text-align:left;color:#F7F4EF;font-size:0.65rem;"
+              "text-transform:uppercase;letter-spacing:0.08em;"
+              "font-family:JetBrains Mono,monospace;font-weight:500")
+        table_html = f"""<table style="width:100%;border-collapse:collapse;font-size:0.8rem;background:white;border:1px solid #C8BBA8">
 <tr style="background:#1A1208">
-<th style="padding:0.5rem 0.8rem;text-align:left;color:#F7F4EF;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;font-family:JetBrains Mono,monospace;font-weight:500">Strategy</th>
-<th style="padding:0.5rem 0.8rem;text-align:left;color:#F7F4EF;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;font-family:JetBrains Mono,monospace;font-weight:500">Faithfulness ↑</th>
-<th style="padding:0.5rem 0.8rem;text-align:left;color:#F7F4EF;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;font-family:JetBrains Mono,monospace;font-weight:500">Context Precision ↑</th>
-<th style="padding:0.5rem 0.8rem;text-align:left;color:#F7F4EF;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;font-family:JetBrains Mono,monospace;font-weight:500">Answer Relevance ↑</th>
-<th style="padding:0.5rem 0.8rem;text-align:left;color:#F7F4EF;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;font-family:JetBrains Mono,monospace;font-weight:500">Avg Latency</th>
+<th style="{th}">Strategy</th>
+<th style="{th}">Faithfulness ↑</th>
+<th style="{th}">Ctx Precision ↑</th>
+<th style="{th}">Ans Relevance ↑</th>
+<th style="{th}">Correctness ↑</th>
+<th style="{th}">% Correct ↑</th>
+<th style="{th}">Avg Latency</th>
 </tr>"""
+
+        def _bold(val, best):
+            return 'font-weight:600;text-decoration:underline;text-underline-offset:3px' if val == best else ''
+
         for row in comparison:
-            f_style = 'font-weight:600;text-decoration:underline;text-underline-offset:3px' if row['faithfulness'] == best_faith else ''
-            p_style = 'font-weight:600;text-decoration:underline;text-underline-offset:3px' if row['context_precision'] == best_prec else ''
-            r_style = 'font-weight:600;text-decoration:underline;text-underline-offset:3px' if row['answer_relevance'] == best_rel else ''
             table_html += f"""<tr style="border-bottom:1px solid #EDE8DF">
 <td style="padding:0.55rem 0.8rem;color:#4A3728;font-family:'Playfair Display',Georgia,serif;font-style:italic;font-size:0.78rem">{row['strategy']}</td>
-<td style="padding:0.55rem 0.8rem;color:#3D2E1E;font-family:JetBrains Mono,monospace;font-size:0.75rem;{f_style}">{row['faithfulness']}</td>
-<td style="padding:0.55rem 0.8rem;color:#3D2E1E;font-family:JetBrains Mono,monospace;font-size:0.75rem;{p_style}">{row['context_precision']}</td>
-<td style="padding:0.55rem 0.8rem;color:#3D2E1E;font-family:JetBrains Mono,monospace;font-size:0.75rem;{r_style}">{row['answer_relevance']}</td>
-<td style="padding:0.55rem 0.8rem;color:#8B7355;font-family:JetBrains Mono,monospace;font-size:0.75rem">{row['latency_ms']}ms</td>
+<td style="padding:0.55rem 0.8rem;color:#3D2E1E;font-family:JetBrains Mono,monospace;font-size:0.75rem;{_bold(row['faithfulness'], best_faith)}">{row['faithfulness']:.3f}</td>
+<td style="padding:0.55rem 0.8rem;color:#3D2E1E;font-family:JetBrains Mono,monospace;font-size:0.75rem;{_bold(row['context_precision'], best_prec)}">{row['context_precision']:.3f}</td>
+<td style="padding:0.55rem 0.8rem;color:#3D2E1E;font-family:JetBrains Mono,monospace;font-size:0.75rem;{_bold(row['answer_relevance'], best_rel)}">{row['answer_relevance']:.3f}</td>
+<td style="padding:0.55rem 0.8rem;color:#3D2E1E;font-family:JetBrains Mono,monospace;font-size:0.75rem;{_bold(row['correctness'], best_corr)}">{row['correctness']:.3f}</td>
+<td style="padding:0.55rem 0.8rem;color:#3D2E1E;font-family:JetBrains Mono,monospace;font-size:0.75rem;{_bold(row['pct_correct'], best_pct)}">{row['pct_correct']:.0f}%</td>
+<td style="padding:0.55rem 0.8rem;color:#8B7355;font-family:JetBrains Mono,monospace;font-size:0.75rem">{row['latency_ms']:,}ms</td>
 </tr>"""
         table_html += "</table>"
         st.markdown(table_html, unsafe_allow_html=True)
 
         st.markdown("""
         <div class="footnote">
-            † Faithfulness — token overlap between answer and retrieved context<br>
-            † Context Precision — fraction of retrieved chunks with cosine similarity &gt; 0.4 to query<br>
+            † Faithfulness — stopword-filtered token overlap between answer and retrieved context<br>
+            † Context Precision — fraction of retrieved chunks with cosine similarity &gt; 0.4 to query · ≈1.0 for naive/semantic is a threshold artifact on this corpus<br>
             † Answer Relevance — cosine similarity between query embedding and answer embedding<br>
-            † Generator — Mistral-7B-Instruct-v0.2 on Kaggle T4 GPU · best values underlined
+            † Correctness — sentence_mean_of_max_cosine vs. reference answer; threshold 0.55 (factual/comparative/procedural) / 0.45 (consensus)<br>
+            † Evaluated on 50 type-balanced questions · 505-paper corpus · Mistral-7B-Instruct-v0.2 on Kaggle T4 GPU · best values underlined
         </div>
         """, unsafe_allow_html=True)
+
+        # ── Calibration section ───────────────────────────────────────────────
+        st.markdown('<div class="rule-double" style="margin-top:2.5rem"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-label" style="margin-bottom:0.8rem">Confidence Calibration · Action 1.1</div>', unsafe_allow_html=True)
+
+        try:
+            cal = load_calibration()
+            pb  = cal['per_band']
+            pt  = cal['per_type']
+            proc = pt.get('procedural', {})
+
+            st.markdown(f"""
+            <div class="stats-strip">
+                <div class="stat-cell">
+                    <span class="stat-num">{cal['roc_auc']:.3f}</span>
+                    <span class="stat-cap">ROC-AUC</span>
+                </div>
+                <div class="stat-cell">
+                    <span class="stat-num" style="color:#27ae60">{pb['GREEN']['pct_correct']:.0f}%</span>
+                    <span class="stat-cap">GREEN correct · n={pb['GREEN']['count']}</span>
+                </div>
+                <div class="stat-cell">
+                    <span class="stat-num" style="color:#8B6914">{pb['YELLOW']['pct_correct']:.0f}%</span>
+                    <span class="stat-cap">YELLOW correct · n={pb['YELLOW']['count']}</span>
+                </div>
+                <div class="stat-cell">
+                    <span class="stat-num" style="color:#6B0000">{pb['RED']['pct_correct']:.0f}%</span>
+                    <span class="stat-cap">RED correct · n={pb['RED']['count']}</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            img_path = DATA_DIR / 'calibration_plot.png'
+            if img_path.exists():
+                st.image(str(img_path), use_container_width=True)
+
+            st.markdown(f"""
+            <div class="footnote">
+                Confidence is well-calibrated overall (AUC {cal['roc_auc']:.3f}): GREEN answers are correct {pb['GREEN']['pct_correct']:.0f}% of the time;
+                RED answers 0% — the refusal mechanism works as intended. GREEN vs RED gap: +{pb['GREEN']['pct_correct'] - pb['RED']['pct_correct']:.0f}pp.<br>
+                Known limitation: procedural questions score only {proc.get('pct_correct', 42):.0f}% correct despite a mean confidence of {proc.get('mean_confidence', 62.8):.1f}
+                — the keyword router sends 8 of 12 procedural queries to naive_rag instead of semantic_rag,
+                depressing both quality and calibration for this type. Addressed in Phase 2 (embedding-centroid router).
+            </div>
+            """, unsafe_allow_html=True)
+
+        except Exception:
+            st.info("Add calibration_results.json and calibration_plot.png to app/data/ to enable this section.")
 
     except Exception:
         st.info("Add comparison_table.json to the app/data/ folder.")

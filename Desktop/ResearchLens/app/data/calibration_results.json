@@ -1,0 +1,93 @@
+{
+  "roc_auc": 0.7825,
+  "overall_mean_correctness": 0.5043,
+  "overall_pct_correct": 60.0,
+  "n_questions": 50,
+  "verdict": "calibrated",
+  "per_band": {
+    "GREEN": {
+      "count": 9,
+      "mean_correctness": 0.6496,
+      "pct_correct": 88.89,
+      "conf_range": [
+        82.1,
+        89.6
+      ]
+    },
+    "YELLOW": {
+      "count": 37,
+      "mean_correctness": 0.4972,
+      "pct_correct": 59.46,
+      "conf_range": [
+        51.0,
+        79.8
+      ]
+    },
+    "RED": {
+      "count": 4,
+      "mean_correctness": 0.2427,
+      "pct_correct": 0.0,
+      "conf_range": [
+        25.6,
+        49.7
+      ]
+    }
+  },
+  "per_type": {
+    "factual": {
+      "count": 13,
+      "mean_confidence": 72.95,
+      "mean_correctness": 0.5554,
+      "pct_correct": 61.54,
+      "band_dist": {
+        "YELLOW": 10,
+        "GREEN": 3
+      },
+      "strategy_dist": {
+        "naive_rag": 8,
+        "hybrid_rerank": 5
+      }
+    },
+    "comparative": {
+      "count": 13,
+      "mean_confidence": 75.85,
+      "mean_correctness": 0.5145,
+      "pct_correct": 69.23,
+      "band_dist": {
+        "YELLOW": 7,
+        "GREEN": 6
+      },
+      "strategy_dist": {
+        "hybrid_rerank": 13
+      }
+    },
+    "consensus": {
+      "count": 12,
+      "mean_confidence": 57.6,
+      "mean_correctness": 0.4539,
+      "pct_correct": 66.67,
+      "band_dist": {
+        "RED": 2,
+        "YELLOW": 10
+      },
+      "strategy_dist": {
+        "hybrid_rag": 12
+      }
+    },
+    "procedural": {
+      "count": 12,
+      "mean_confidence": 62.79,
+      "mean_correctness": 0.4883,
+      "pct_correct": 41.67,
+      "band_dist": {
+        "YELLOW": 10,
+        "RED": 2
+      },
+      "strategy_dist": {
+        "hybrid_rerank": 1,
+        "naive_rag": 8,
+        "semantic_rag": 3
+      }
+    }
+  }
+}

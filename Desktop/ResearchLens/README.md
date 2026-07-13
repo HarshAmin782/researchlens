@@ -22,7 +22,7 @@ Most RAG projects upload a PDF and ask questions. ResearchLens goes further:
 ## Four Core Components
 
 **1. Adaptive Query Routing**
-Classifies every incoming question as factual / comparative / consensus / procedural and dispatches it to the retrieval strategy most likely to succeed. Achieved 100% routing accuracy on a 40-query labeled test set.
+Classifies every incoming question as factual / comparative / consensus / procedural and dispatches it to the retrieval strategy most likely to succeed. Routing accuracy: 72% on a 50-question type-balanced evaluation set — an earlier 100% figure came from a self-authored keyword test that shared an author with the classifier (documented honestly; see calibration section below).
 
 **2. Multi-Strategy Retrieval**
 Four distinct RAG pipelines implemented and compared:
@@ -46,17 +46,31 @@ When a consensus query arrives ("do papers agree on X?"), the system extracts fa
 
 ## Results
 
-Evaluated on 50 QASPER questions using custom metrics (Mistral-7B-Instruct-v0.2 generator):
+Evaluated on 50 type-balanced questions (13 factual · 13 comparative · 12 consensus · 12 procedural) against the 505-paper corpus, using Mistral-7B-Instruct-v0.2:
 
-| Strategy | Faithfulness ↑ | Context Precision ↑ | Answer Relevance ↑ | Latency |
-|----------|---------------|--------------------|--------------------|---------|
-| A · Naive RAG | 0.666 | 0.688 | 0.359 | 17,022ms |
-| B · Semantic RAG | 0.647 | 0.660 | 0.411 | 17,863ms |
-| C · Hybrid RAG | 0.701 | 0.364 | 0.341 | 17,656ms |
-| D · Hybrid + Reranker | **0.727** | 0.384 | 0.356 | 19,418ms |
-| Adaptive Router | 0.697 | **0.652** | 0.356 | 17,366ms |
+| Strategy | Faithfulness ↑ | Ctx Precision ↑ | Ans Relevance ↑ | Correctness ↑ | % Correct ↑ | Latency |
+|----------|---------------|----------------|----------------|--------------|------------|---------|
+| A · Naive RAG | 0.718 | 1.000† | 0.549 | 0.483 | 40% | 9,669ms |
+| B · Semantic RAG | 0.716 | 1.000† | 0.556 | 0.504 | 50% | 9,525ms |
+| C · Hybrid RAG | 0.811 | 0.876 | 0.525 | 0.515 | 56% | 11,494ms |
+| D · Hybrid + Reranker | **0.833** | 0.888 | 0.530 | **0.527** | **64%** | 12,047ms |
+| Adaptive Router | 0.785 | 0.892 | 0.509 | 0.504 | 60% | 11,133ms |
 
-Hybrid + Reranker achieves **+9.2% faithfulness** over Naive RAG at only **+14% latency overhead**.
+† Context Precision ≈ 1.0 for naive/semantic is a threshold artifact — questions grounded in this specific corpus push all chunk cosine similarities above the 0.4 threshold. Correctness (sentence_mean_of_max_cosine) is the primary quality signal.
+
+Hybrid + Reranker leads on every quality metric. **Honest finding:** Hybrid + Reranker currently outperforms the Adaptive Router on every metric — the router adds overhead without a quality payoff. Type-balanced evaluation shows routing accuracy at **72%** (down from an earlier circular 100% on a keyword-matched test set). The primary gap is procedural routing: 8 of 12 procedural queries go to naive_rag instead of semantic_rag. This motivates an embedding-centroid router as the next improvement (Phase 2 of the improvement plan).
+
+### Confidence Calibration
+
+Confidence scores validated against actual answer correctness (ROC-AUC = **0.782**):
+
+| Band | Confidence | N | % Correct | Interpretation |
+|------|-----------|---|-----------|----------------|
+| GREEN | ≥ 80 | 9 | **88.9%** | High confidence = high quality |
+| YELLOW | 50–79 | 37 | 59.5% | Moderate confidence |
+| RED | < 50 | 4 | **0.0%** | All wrong — refusal mechanism validated |
+
+GREEN vs RED gap: **+88.9pp**. Every RED answer was incorrect; the refusal mechanism would correctly block all of them. Known limitation: procedural questions score only 42% correct despite a mean confidence of 62.8 — a routing problem, not a generation problem.
 
 ---
 
@@ -147,9 +161,11 @@ RAGAS 0.4 requires an external LLM API for all metrics and the free tier (Groq) 
 ## What's Next
 
 - ~~Expand corpus from 100 to 500+ papers~~ ✓ Done — 505 papers, 29,976 chunks
-- Fine-tune the query router to replace the keyword classifier
-- Add real-time arXiv paper fetching during queries
-- Multi-modal support for figures and tables in papers
+- ~~Type-balanced evaluation set~~ ✓ Done — 50 questions across 4 query types, corpus-grounded
+- ~~Confidence calibration~~ ✓ Done — AUC 0.782, GREEN/YELLOW/RED bands validated
+- Embedding-centroid router — replaces keyword classifier with nearest-centroid classification; fixes the procedural routing gap
+- Logistic-regression confidence combiner — replaces hand-picked 0.4/0.3/0.3 weights with weights learned from correctness labels
+- Real-time arXiv paper fetching during queries
 
 ---
 

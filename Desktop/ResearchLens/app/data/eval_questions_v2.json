@@ -1,0 +1,316 @@
+{
+  "scoring_config": {
+    "formula": "sentence_mean_of_max_cosine",
+    "embedding_model": "all-MiniLM-L6-v2",
+    "thresholds": {
+      "factual": 0.55,
+      "comparative": 0.55,
+      "procedural": 0.55,
+      "consensus": 0.45
+    },
+    "formula_description": "For each sentence in reference_answer, compute cosine similarity to every sentence in the generated answer using the embedding_model. Take the max per reference sentence, then average across all reference sentences. The final score is this mean-of-max value, compared against the threshold for the question's query_type.",
+    "rationale": "Sentence-level mean-of-max avoids penalising correct answers that express the same idea in different words or cover reference points in a different order — it only requires each conceptual point to appear somewhere in the generated answer. The lower threshold for consensus questions (0.45 vs 0.55) accounts for the fact that valid answers may draw on different but equally relevant papers than those listed in source_papers, producing correct content whose vocabulary may diverge from the reference phrasing. Factual and procedural questions retain the tighter 0.55 threshold because their reference answers contain specific technical terms and key numbers that a correct answer must reproduce with reasonable fidelity. The embedding model is the same all-MiniLM-L6-v2 used for retrieval in the pipeline, so cosine similarity values are on a consistent scale across both retrieval scoring and correctness scoring."
+  },
+  "questions": [
+    {
+      "question": "What percentage reduction in token consumption did the CROP method achieve on complex reasoning datasets while maintaining competitive accuracy?",
+      "query_type": "factual",
+      "reference_answer": "CROP achieved an 80.6% reduction in token consumption while maintaining competitive accuracy, with only a nominal decline in performance across GSM8K, LogiQA, and BIG-Bench Hard. It introduces regularization on response length into automatic prompt optimization, forcing prompts that elicit concise responses containing only critical information and reasoning steps.",
+      "source_papers": ["CROP: Token-Efficient Reasoning in Large Language Models via Regularized Prompt Optimization"]
+    },
+    {
+      "question": "By how much longer can Transformer-XL learn dependencies compared to vanilla Transformers, and how fast is it during evaluation relative to vanilla Transformers?",
+      "query_type": "factual",
+      "reference_answer": "Transformer-XL learns dependencies 450% longer than vanilla Transformers and 80% longer than RNNs, achieved through a segment-level recurrence mechanism and a novel positional encoding scheme. During evaluation it is up to 1,800 times faster than vanilla Transformers.",
+      "source_papers": ["Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context"]
+    },
+    {
+      "question": "What novel metric does the task-specific efficiency analysis paper introduce to compare language models across efficiency dimensions, and which model size range achieves the best scores?",
+      "query_type": "factual",
+      "reference_answer": "The paper introduces the Performance-Efficiency Ratio (PER), a metric that integrates accuracy, throughput, memory, and latency through geometric mean normalization. Small models with 0.5-3B parameters achieve superior PER scores across all five tested NLP tasks, establishing quantitative foundations for deploying small models in production environments that prioritise inference efficiency.",
+      "source_papers": ["Task-Specific Efficiency Analysis: When Small Language Models Outperform Large Language Models"]
+    },
+    {
+      "question": "What instruction fine-tuning method does WizardCoder adapt for code LLMs, and which closed-source commercial models does it outperform on HumanEval?",
+      "query_type": "factual",
+      "reference_answer": "WizardCoder adapts the Evol-Instruct method to the code domain, using it to generate complex coding instructions for fine-tuning. It outperforms Anthropic's Claude and Google's Bard on HumanEval and HumanEval+ benchmarks despite being an open-source model.",
+      "source_papers": ["WizardCoder: Empowering Code Large Language Models with Evol-Instruct"]
+    },
+    {
+      "question": "What architectural problem does Gated Sparse Attention (GSA) address that existing sparse-only attention mechanisms do not, and what speedup does it achieve at 128K context?",
+      "query_type": "factual",
+      "reference_answer": "GSA addresses the attention sink phenomenon that sparse-only mechanisms ignore — attention sinks cause excessive focus on the first token and training instability. By combining a gated lightning indexer with adaptive sparsity control and dual gating at value and output stages, GSA achieves a 12-16x speedup at 128K context while also recovering the training stability benefits that gated-only approaches provide.",
+      "source_papers": ["Gated Sparse Attention: Combining Computational Efficiency with Training Stability for Long-Context Language Models"]
+    },
+    {
+      "question": "What key property distinguishes the RAGAS evaluation framework from traditional RAG evaluation approaches that rely on annotated test sets?",
+      "query_type": "factual",
+      "reference_answer": "RAGAS performs reference-free evaluation — it assesses RAG pipelines across multiple dimensions (retrieval context relevance, generation faithfulness, and answer quality) without requiring ground-truth human annotations. This enables faster evaluation cycles, which is important given the rapid adoption of LLMs in RAG pipelines.",
+      "source_papers": ["Ragas: Automated Evaluation of Retrieval Augmented Generation"]
+    },
+    {
+      "question": "What accuracy improvement and latency reduction does Speculative RAG achieve on PubHealth compared to conventional RAG, and what architectural mechanism produces this result?",
+      "query_type": "factual",
+      "reference_answer": "Speculative RAG improves accuracy by up to 12.97% and reduces latency by 50.83% on PubHealth compared to conventional RAG. It achieves this by delegating parallel draft generation to a smaller distilled specialist LM — each draft covers a distinct subset of retrieved documents — while a larger generalist LM performs a single verification pass over the drafts, keeping the slow generation step in the smaller model.",
+      "source_papers": ["Speculative RAG: Enhancing Retrieval Augmented Generation through Drafting"]
+    },
+    {
+      "question": "What ROUGE-1 score does LoRA achieve on Flan-T5-Large for medical text summarisation, and what fraction of parameters does it train compared to full fine-tuning?",
+      "query_type": "factual",
+      "reference_answer": "LoRA achieves 43.52 +/- 0.18 ROUGE-1 on Flan-T5-Large using only 0.6% of trainable parameters, outperforming full fine-tuning which scores 40.67 +/- 0.21 ROUGE-1 while updating all parameters. The low-rank constraint provides beneficial regularisation, challenging the assumption that full parameter updates are necessary for strong downstream performance.",
+      "source_papers": ["Parameter-Efficient Fine-Tuning for Medical Text Summarization: A Comparative Study of Lora, Prompt Tuning, and Full Fine-Tuning"]
+    },
+    {
+      "question": "What does the study on quantisation and RAG conclude about the effect of INT4 quantisation on 7B LLMs used for long-context retrieval-augmented generation?",
+      "query_type": "factual",
+      "reference_answer": "If a 7B LLM performs the RAG task well in FP16, INT4 quantisation does not impair its RAG performance or long-context reasoning capabilities. The study concludes it is viable to deploy quantised smaller LLMs with RAG, enabling reduced hardware requirements without meaningful quality loss.",
+      "source_papers": ["The Impact of Quantization on Retrieval-Augmented Generation: An Analysis of Small LLMs"]
+    },
+    {
+      "question": "What are the four main categories of Transformer compression methods identified in the Transformer Compression survey?",
+      "query_type": "factual",
+      "reference_answer": "The four main compression categories are: pruning, quantisation, knowledge distillation, and efficient architecture design. The efficient architecture design category includes alternative architectures such as Mamba, RetNet, and RWKV that replace the standard attention mechanism.",
+      "source_papers": ["A Survey on Transformer Compression"]
+    },
+    {
+      "question": "According to the paper 'Fine-Tuning is Fine, if Calibrated', what is the actual root cause of accuracy degradation on unseen classes after fine-tuning a classifier on a class subset, and what simple fix restores performance?",
+      "query_type": "factual",
+      "reference_answer": "The root cause is not forgetting of class relationships or feature degradation — fine-tuned models often produce more discriminative features for unseen classes than before fine-tuning. What actually hurts accuracy is discrepant logit scales between fine-tuning classes and other classes. A simple post-processing calibration step that corrects these scale differences restores the pre-trained model's accuracy on unseen classes.",
+      "source_papers": ["Fine-Tuning is Fine, if Calibrated"]
+    },
+    {
+      "question": "What computational complexity does Radial Attention achieve for long video generation, and what speedup and video length extension does it enable over standard dense attention?",
+      "query_type": "factual",
+      "reference_answer": "Radial Attention achieves O(n log n) complexity compared to standard O(n^2) dense attention, motivated by a Spatiotemporal Energy Decay phenomenon where attention scores diminish with spatial and temporal distance. It achieves up to 1.9x inference speedup and enables video generation up to 4x longer with 4.4x lower training cost via LoRA-based fine-tuning.",
+      "source_papers": ["Radial Attention: O(n log n) Sparse Attention with Energy Decay for Long Video Generation"]
+    },
+    {
+      "question": "How does SURE-RAG's evidence verification approach differ from using a GPT-4o judge for assessing RAG answer quality, and which achieves higher Macro-F1 on HotpotQA-RAG v3?",
+      "query_type": "factual",
+      "reference_answer": "SURE-RAG aggregates local claim-evidence relation scores into five interpretable signals (coverage, relation strength, disagreement, conflict, retrieval uncertainty) and makes an auditable three-way decision. A GPT-4o judge is opaque. SURE-RAG achieves 0.9075 Macro-F1 compared to 0.7284 for the GPT-4o judge, demonstrating that structured evidence sufficiency verification substantially outperforms unstructured LLM-based judgment on controlled multi-hop evaluation.",
+      "source_papers": ["SURE-RAG: Sufficiency and Uncertainty-Aware Evidence Verification for Selective Retrieval-Augmented Generation"]
+    },
+    {
+      "question": "How does RAG-Fusion's approach to improving over standard RAG differ mechanically from Blended RAG's approach?",
+      "query_type": "comparative",
+      "reference_answer": "RAG-Fusion improves retrieval by generating multiple alternative queries from the original and fusing their retrieved documents using reciprocal rank fusion (RRF) scores — the improvement comes from multi-perspective query rewriting that contextualises the original query from different angles. Blended RAG improves retrieval by blending dense vector indexes and sparse encoder indexes into a hybrid retriever — the improvement comes from combining complementary signal types to cover both semantic and lexical matching. RAG-Fusion targets breadth via query expansion; Blended RAG targets coverage via index type diversity.",
+      "source_papers": ["RAG-Fusion: a New Take on Retrieval-Augmented Generation", "Blended RAG: Improving RAG (Retriever-Augmented Generation) Accuracy with Semantic Search and Hybrid Query-Based Retrievers"]
+    },
+    {
+      "question": "How do the SPF (safety-preserving fine-tuning) method and the Antidote framework differ in when and how they protect LLM safety alignment?",
+      "query_type": "comparative",
+      "reference_answer": "SPF intervenes during fine-tuning by identifying that safety gradients lie in a low-rank subspace and explicitly removing gradient components that conflict with this subspace during the training process — it is a training-time gradient filter. Antidote acts post-fine-tuning by applying one-shot pruning to remove harmful weights after they have already formed, making it agnostic to fine-tuning hyperparameters such as learning rate and number of epochs. SPF preserves safety proactively during training; Antidote recovers it reactively after training.",
+      "source_papers": ["Understanding and Preserving Safety in Fine-Tuned LLMs", "Antidote: Post-fine-tuning Safety Alignment for Large Language Models against Harmful Fine-tuning"]
+    },
+    {
+      "question": "How do WizardLM and WizardCoder both apply the Evol-Instruct method, and for what different domains and performance targets is each designed?",
+      "query_type": "comparative",
+      "reference_answer": "WizardLM applies Evol-Instruct to general instruction-following by rewriting seed instructions into progressively more complex instructions to fine-tune LLaMA for open-domain tasks, achieving over 90% of ChatGPT's capability on 17 of 29 skills in GPT-4 evaluation. WizardCoder adapts Evol-Instruct specifically to the code domain to generate complex coding instructions, producing a code LLM that outperforms closed-source models including Anthropic's Claude and Google's Bard on HumanEval benchmarks.",
+      "source_papers": ["WizardLM: Empowering large pre-trained language models to follow complex instructions", "WizardCoder: Empowering Code Large Language Models with Evol-Instruct"]
+    },
+    {
+      "question": "How does the Blended RAG method combining dense vector and sparse encoder indexes compare to standard single-index RAG on information retrieval and generative QA benchmarks?",
+      "query_type": "comparative",
+      "reference_answer": "Blended RAG achieves better retrieval results and sets new benchmarks on NQ and TREC-COVID IR datasets compared to standard RAG. On generative QA (SQuAD), Blended RAG shows far superior results, even surpassing fine-tuning performance on these benchmarks by leveraging complementary dense semantic and sparse lexical signals.",
+      "source_papers": ["Blended RAG: Improving RAG (Retriever-Augmented Generation) Accuracy with Semantic Search and Hybrid Query-Based Retrievers"]
+    },
+    {
+      "question": "How does Diversity-Focused RAG (DF-RAG) compare to vanilla cosine-similarity RAG on reasoning-intensive QA, and what fraction of the theoretical performance ceiling does it capture?",
+      "query_type": "comparative",
+      "reference_answer": "DF-RAG improves F1 by 4-10% over vanilla cosine-similarity RAG on reasoning-intensive QA benchmarks. The estimated Oracle ceiling of diverse retrieval is 18% absolute F1 gain over vanilla RAG, and DF-RAG captures up to 91.3% of this ceiling by dynamically optimising query-specific diversity at test time without any additional fine-tuning.",
+      "source_papers": ["DF-RAG: Query-Aware Diversity for Retrieval-Augmented Generation"]
+    },
+    {
+      "question": "How does end-to-end fine-tuning of the entire RAG architecture including the DPR retriever compare to the standard approach of training only the generator?",
+      "query_type": "comparative",
+      "reference_answer": "End-to-end fine-tuning of the complete RAG architecture, including the Dense Passage Retriever (DPR), outperforms the standard RAG architecture where only the generator is trained while the retriever is frozen. The key engineering contribution is enabling gradient flow through both the retriever and generator jointly. The implementation is available in the HuggingFace Transformers library.",
+      "source_papers": ["Fine-tune the Entire RAG Architecture (including DPR retriever) for Question-Answering"]
+    },
+    {
+      "question": "How do the RAGAS and SURE-RAG frameworks differ in their fundamental design philosophy for evaluating RAG quality?",
+      "query_type": "comparative",
+      "reference_answer": "RAGAS is a reference-free pipeline-level evaluation framework that measures three aggregate dimensions (retrieval context relevance, generation faithfulness, answer relevance) without ground-truth annotations, designed for fast development-cycle benchmarking of RAG architectures across many queries. SURE-RAG is a selective answering framework that verifies evidence sufficiency at query time before deciding whether to generate — designed to make individual answers trustworthy by abstaining when retrieved evidence is insufficient. RAGAS measures average pipeline quality; SURE-RAG gates individual answer generation.",
+      "source_papers": ["Ragas: Automated Evaluation of Retrieval Augmented Generation", "SURE-RAG: Sufficiency and Uncertainty-Aware Evidence Verification for Selective Retrieval-Augmented Generation"]
+    },
+    {
+      "question": "According to the RAG Fusion production deployment study, how does retrieval fusion (multi-query generation plus reciprocal rank fusion) compare to single-query RAG baselines under realistic production constraints?",
+      "query_type": "comparative",
+      "reference_answer": "Under production constraints including fixed retrieval depth, re-ranking budgets, and latency limits, retrieval fusion variants fail to outperform single-query baselines. Hit@10 decreases from 0.51 to 0.48 in several fusion configurations after reranking and truncation are applied. Fusion also introduces latency overhead from query rewriting and larger candidate sets without corresponding improvements in downstream answer quality.",
+      "source_papers": ["Scaling Retrieval Augmented Generation with RAG Fusion: Lessons from an Industry Deployment"]
+    },
+    {
+      "question": "How does the Hydra unified retrieval-and-generation model compare to deploying separate retrieval and generation models in terms of peak GPU memory at the 4B parameter scale?",
+      "query_type": "comparative",
+      "reference_answer": "Hydra reduces peak GPU memory from 28.85 GB to 10.77 GB at the 4B scale (62.7% reduction) by combining ColBERT-style late-interaction retrieval and autoregressive generation in a single vision-language model. A toggleable LoRA adapter switches between retrieval mode (producing multi-vector embeddings) and generation mode, with all 426 language-model weight tensors byte-for-byte identical to the base model in generation mode.",
+      "source_papers": ["Hydra: Unifying Document Retrieval and Generation in a Single Vision-Language Model"]
+    },
+    {
+      "question": "According to the THaMES hallucination mitigation study, how do commercial LLMs such as GPT-4o and open-weight LLMs such as Llama-3.1-8B and Mistral-Nemo differ in their relative benefit from RAG versus in-context learning for hallucination reduction?",
+      "query_type": "comparative",
+      "reference_answer": "Commercial models like GPT-4o benefit more from RAG than in-context learning (ICL) for hallucination mitigation, while open-weight models like Llama-3.1-8B-Instruct and Mistral-Nemo gain more from ICL than RAG. Additionally, parameter-efficient fine-tuning (PEFT) significantly enhances open-weight model performance on both hallucination detection and evaluation tasks.",
+      "source_papers": ["THaMES: An End-to-End Tool for Hallucination Mitigation and Evaluation in Large Language Models"]
+    },
+    {
+      "question": "How does fine-tuning a large pre-trained model with very large dropout rates compare to ensemble methods and weight averaging (model soups) for out-of-distribution performance?",
+      "query_type": "comparative",
+      "reference_answer": "Fine-tuning with very large dropout rates achieves out-of-distribution performance that exceeds both ensemble methods and weight averaging approaches such as model soups. While training a deep network from scratch with such high dropout rates is virtually impossible, fine-tuning a large pre-trained model under these conditions is feasible and produces richer representations than those obtainable through ensembling or weight averaging.",
+      "source_papers": ["Fine-tuning with Very Large Dropout"]
+    },
+    {
+      "question": "How do GPT-4, PaLM, and Llama2-70B compare in their ability to retrieve and answer multi-hop queries in the MultiHop-RAG benchmark?",
+      "query_type": "comparative",
+      "reference_answer": "The MultiHop-RAG benchmarking experiments reveal that all three models — GPT-4, PaLM, and Llama2-70B — perform unsatisfactorily on both retrieving evidence for and answering multi-hop queries. This indicates multi-hop QA remains a fundamental challenge regardless of model scale, demonstrating that the limitation lies in the single-hop retrieval paradigm rather than in model capability alone.",
+      "source_papers": ["MultiHop-RAG: Benchmarking Retrieval-Augmented Generation for Multi-Hop Queries"]
+    },
+    {
+      "question": "How do Gated Sparse Attention (GSA) and Radial Attention both address the O(n^2) attention complexity bottleneck, and for what different application domains are they designed?",
+      "query_type": "comparative",
+      "reference_answer": "GSA reduces complexity by dynamically selecting a sparse subset of tokens using a gated lightning indexer with adaptive sparsity control, targeting long-context language model training where training stability and attention sinks are key concerns. Radial Attention reduces complexity to O(n log n) using a static spatial mask motivated by Spatiotemporal Energy Decay, where attention window size shrinks with temporal distance, targeting long video generation in diffusion models. GSA uses dynamic token selection with stability benefits; Radial Attention uses a fixed geometry-driven structure with a different domain motivation.",
+      "source_papers": ["Gated Sparse Attention: Combining Computational Efficiency with Training Stability for Long-Context Language Models", "Radial Attention: O(n log n) Sparse Attention with Energy Decay for Long Video Generation"]
+    },
+    {
+      "question": "What do multiple papers in this corpus agree is the primary limitation of large language models that retrieval-augmented generation (RAG) is designed to address?",
+      "query_type": "consensus",
+      "reference_answer": "RAG addresses two core LLM limitations: hallucinations (generating factually incorrect content not grounded in verifiable knowledge) and outdated internal knowledge (training cutoffs prevent LLMs from accessing recent information). By retrieving from an external knowledge base at inference time, RAG grounds generation in up-to-date, verifiable sources rather than relying solely on parametric memory.",
+      "source_papers": ["A Comprehensive Survey of Retrieval-Augmented Generation (RAG): Evolution, Current Landscape and Future Directions", "A Survey on RAG Meeting LLMs: Towards Retrieval-Augmented Large Language Models", "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems"]
+    },
+    {
+      "question": "What challenge do papers on multi-hop question answering consistently identify about standard single-step RAG retrieval for complex queries?",
+      "query_type": "consensus",
+      "reference_answer": "Standard single-step RAG retrieval is inadequate for queries requiring reasoning over multiple pieces of supporting evidence from different documents. Individual retrieved documents may appear irrelevant in isolation but are essential when combined across retrieval steps. Existing RAG methods perform unsatisfactorily on multi-hop benchmarks across all tested LLM scales because the single-retrieval paradigm cannot chain evidence through multiple reasoning steps.",
+      "source_papers": ["MultiHop-RAG: Benchmarking Retrieval-Augmented Generation for Multi-Hop Queries", "S2G-RAG: Structured Sufficiency and Gap Judging for Iterative Retrieval-Augmented QA", "Evaluating Multi-Hop Reasoning in RAG Systems: A Comparison of LLM-Based Retriever Evaluation Strategies"]
+    },
+    {
+      "question": "What do papers on LLM fine-tuning and safety alignment consistently find about the effect of fine-tuning on a model's safety properties, even when fine-tuning data is harmless?",
+      "query_type": "consensus",
+      "reference_answer": "Fine-tuning substantially degrades LLM safety alignment even when the fine-tuning data is entirely harmless. Safety-oriented gradients occupy a low-rank subspace that is often negatively correlated with utility gradients, causing directional conflicts during training. Defences applied during fine-tuning face a safety-utility dilemma where emphasising safety reduces task performance, while prioritising utility causes steep safety decline. Post-fine-tuning interventions that directly remove harmful weights can recover safety without this dilemma.",
+      "source_papers": ["Understanding and Preserving Safety in Fine-Tuned LLMs", "No Two Devils Alike: Unveiling Distinct Mechanisms of Fine-tuning Attacks", "Antidote: Post-fine-tuning Safety Alignment for Large Language Models against Harmful Fine-tuning"]
+    },
+    {
+      "question": "What do RAG evaluation frameworks broadly agree are the key dimensions required to comprehensively assess a RAG pipeline?",
+      "query_type": "consensus",
+      "reference_answer": "A comprehensive RAG evaluation requires three distinct dimensions: (1) retrieval quality — whether retrieved context passages are relevant and focused on the query; (2) faithfulness — whether the generated answer is grounded in and consistent with the retrieved context; and (3) answer relevance — whether the response correctly addresses the user query. These dimensions map to the retrieval component, the context-grounding step, and the final output quality, and each can fail independently.",
+      "source_papers": ["Ragas: Automated Evaluation of Retrieval Augmented Generation", "Deepchecks: Evaluating Retrieval-Augmented Generation (RAG)", "RAG-Check: Evaluating Multimodal Retrieval Augmented Generation Performance"]
+    },
+    {
+      "question": "What computational bottleneck do papers on attention mechanisms agree on for standard self-attention when applied to long sequences or long video contexts?",
+      "query_type": "consensus",
+      "reference_answer": "Standard self-attention has O(n^2) computational complexity that scales quadratically with sequence length, making it prohibitively expensive for long contexts such as 128K tokens or long videos. This bottleneck motivates sparse attention mechanisms that reduce complexity to sub-quadratic levels, achieved through different strategies including segment recurrence, static geometric masks, and dynamic token selection.",
+      "source_papers": ["Gated Sparse Attention: Combining Computational Efficiency with Training Stability for Long-Context Language Models", "Radial Attention: O(n log n) Sparse Attention with Energy Decay for Long Video Generation", "Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context"]
+    },
+    {
+      "question": "What consensus emerges across papers comparing LoRA and other parameter-efficient fine-tuning methods to full fine-tuning for large language models?",
+      "query_type": "consensus",
+      "reference_answer": "LoRA achieves competitive or superior performance to full fine-tuning while updating only a small fraction of parameters (as low as 0.6%). The low-rank constraint acts as beneficial regularisation that can improve generalisation compared to updating all parameters. LoRA also reduces memory and compute requirements, making it practical for resource-constrained environments including federated settings, and the strength of this regularisation can be characterised theoretically through the neural tangent kernel.",
+      "source_papers": ["Parameter-Efficient Fine-Tuning for Medical Text Summarization: A Comparative Study of Lora, Prompt Tuning, and Full Fine-Tuning", "High-Dimensional Theory of LoRA Fine-Tuning in a Solvable Attention Model", "Federated Sketching LoRA: A Flexible Framework for Heterogeneous Collaborative Fine-Tuning of LLMs"]
+    },
+    {
+      "question": "What do papers on enterprise and production RAG deployments consistently find about the relationship between isolated retrieval benchmark improvements and real-world end-to-end effectiveness?",
+      "query_type": "consensus",
+      "reference_answer": "Improvements in isolated retrieval benchmarks do not reliably translate to end-to-end quality improvements in production RAG systems. When realistic constraints are applied — fixed context budgets, re-ranking limits, and latency requirements — recall-oriented techniques like query fusion and multi-query expansion show diminishing returns and can reduce performance relative to single-query baselines. Human evaluation of production systems often diverges significantly from automated benchmark metrics.",
+      "source_papers": ["Scaling Retrieval Augmented Generation with RAG Fusion: Lessons from an Industry Deployment", "Retrieval-Augmented Generation in Industry: An Interview Study on Use Cases, Requirements, Challenges, and Evaluation", "Optimizing and Evaluating Enterprise Retrieval-Augmented Generation (RAG): A Content Design Perspective"]
+    },
+    {
+      "question": "What do papers on document chunking strategies for RAG agree about the impact of naive fixed-size chunking on retrieval quality and answer coherence?",
+      "query_type": "consensus",
+      "reference_answer": "Naive fixed-size chunking fragments semantic context, resulting in incomplete retrieval and diminished answer coherence. Advanced strategies that preserve global or hierarchical context — such as contextual retrieval, structure-aware section-level chunking, and late chunking — improve retrieval relevance and answer quality. The trade-off is computational cost: context-preserving methods require more preprocessing resources than fixed-size approaches.",
+      "source_papers": ["Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation", "SF-RAG: Structure-Fidelity Retrieval-Augmented Generation for Academic Question Answering", "The Chronicles of RAG: The Retriever, the Chunk and the Generator"]
+    },
+    {
+      "question": "What do papers on agentic and iterative RAG systems agree is the fundamental failure mode of static single-retrieval RAG for complex reasoning queries?",
+      "query_type": "consensus",
+      "reference_answer": "Static single-retrieval RAG fails on complex queries because it cannot detect evidence gaps, plan subsequent retrievals, or determine when retrieved evidence is sufficient to answer the question. Iterative retrieval architectures are needed that can assess whether current evidence supports answering, identify what specific information is still missing, and formulate targeted follow-up queries. Without these capabilities, complex multi-step reasoning queries receive incomplete or incorrect answers.",
+      "source_papers": ["SoK: Agentic Retrieval-Augmented Generation (RAG): Taxonomy, Architectures, Evaluation, and Research Directions", "S2G-RAG: Structured Sufficiency and Gap Judging for Iterative Retrieval-Augmented QA", "P-RAG: Progressive Retrieval Augmented Generation For Planning on Embodied Everyday Task"]
+    },
+    {
+      "question": "What do papers studying memorisation during fine-tuning agree about which fine-tuning approaches better protect against private data leakage?",
+      "query_type": "consensus",
+      "reference_answer": "Prompt-based fine-tuning is more privacy-preserving than parameter-based fine-tuning. Prompt-based approaches exhibit lower vulnerability to membership inference attacks (MIAs) and maintain low memorisation regardless of model scale. Parameter-based fine-tuning is more prone to leaking private training data, with memorisation correlated with attention score distribution in the model.",
+      "source_papers": ["Impact of Fine-Tuning Methods on Memorization in Large Language Models", "Exploring Memorization in Fine-tuned Language Models"]
+    },
+    {
+      "question": "What do papers on LLM hallucination agree are the primary mitigation strategies available to practitioners, and which is most effective for factual grounding?",
+      "query_type": "consensus",
+      "reference_answer": "The three primary hallucination mitigation strategies are: (1) retrieval-augmented generation (RAG) — grounding generation in retrieved external knowledge; (2) in-context learning (ICL) — providing relevant examples in the prompt to steer generation; and (3) parameter-efficient fine-tuning (PEFT) on domain-specific data. RAG is most effective for factual grounding by anchoring generation in retrieved passages, though open-weight models often benefit more from ICL than RAG while commercial models benefit more from RAG.",
+      "source_papers": ["Factuality Challenges in the Era of Large Language Models", "THaMES: An End-to-End Tool for Hallucination Mitigation and Evaluation in Large Language Models", "Stable-RAG: Mitigating Retrieval-Permutation-Induced Hallucinations in Retrieval-Augmented Generation"]
+    },
+    {
+      "question": "What do papers on RAG retrieval quality agree is the key limitation of standard cosine-similarity retrieval, and what strategies are emerging to address it?",
+      "query_type": "consensus",
+      "reference_answer": "Standard cosine-similarity retrieval maximises relevance at the cost of redundancy, retrieving near-duplicate high-similarity chunks that reduce information diversity for complex multi-aspect queries. Emerging strategies include diversity-aware retrieval (Maximal Marginal Relevance, dynamic per-query diversity optimisation), ensemble retrievers combining complementary lexical and dense signals, and information-theoretic analysis showing that carefully chosen retriever ensembles outperform any single retriever.",
+      "source_papers": ["A Comprehensive Survey of Retrieval-Augmented Generation (RAG): Evolution, Current Landscape and Future Directions", "Revisiting RAG Retrievers: An Information Theoretic Benchmark", "DF-RAG: Query-Aware Diversity for Retrieval-Augmented Generation"]
+    },
+    {
+      "question": "According to the RAG development experience report, what are the main pipeline stages for building a RAG system from PDF documents, and what two implementation approaches are compared?",
+      "query_type": "procedural",
+      "reference_answer": "The pipeline stages are: (1) data collection from PDF sources; (2) preprocessing and parsing; (3) retrieval indexing (building vector and/or sparse indexes); and (4) response generation using an LLM. Two approaches are compared: OpenAI's Assistant API with GPT series models (closed-source, managed) versus Llama-based open-source models (locally deployable). Python code for both is released publicly.",
+      "source_papers": ["Developing Retrieval Augmented Generation (RAG) based LLM Systems from PDFs: An Experience Report"]
+    },
+    {
+      "question": "What is the step-by-step process RAG-Fusion uses to improve retrieval comprehensiveness over standard single-query RAG?",
+      "query_type": "procedural",
+      "reference_answer": "RAG-Fusion works in three steps: (1) generate multiple alternative queries from the original query to contextualise it from different perspectives; (2) retrieve documents independently for each generated query; (3) rerank and fuse the retrieved documents across all queries using reciprocal rank fusion (RRF) scores to produce a single unified ranked document set for the generator.",
+      "source_papers": ["RAG-Fusion: a New Take on Retrieval-Augmented Generation"]
+    },
+    {
+      "question": "What is the step-by-step procedure Typed-RAG uses to handle non-factoid questions more effectively than standard RAG?",
+      "query_type": "procedural",
+      "reference_answer": "Typed-RAG uses three steps: (1) classify the non-factoid question into a predefined type such as Debate, Experience, or Comparison; (2) decompose the question into focused sub-queries each targeting a single aspect of the question; (3) retrieve and generate answers for each sub-query independently, then combine the sub-query results into a final response that is more informative and contextually aligned than standard single-pass RAG.",
+      "source_papers": ["Typed-RAG: Type-Aware Decomposition of Non-Factoid Questions for Retrieval-Augmented Generation"]
+    },
+    {
+      "question": "What are the five specific strategies recommended for improving text chunk retrieval quality in a RAG pipeline applied to financial documents?",
+      "query_type": "procedural",
+      "reference_answer": "The five recommended strategies are: (1) sophisticated chunking techniques that better preserve contextual boundaries; (2) query expansion to broaden recall across different phrasings; (3) incorporation of metadata annotations to enrich chunk representations with structured context; (4) application of re-ranking algorithms to re-order retrieved candidates by relevance; and (5) fine-tuning of embedding algorithms on domain-specific financial data to improve retrieval precision.",
+      "source_papers": ["Improving Retrieval for RAG based Question Answering Models on Financial Documents"]
+    },
+    {
+      "question": "What four-stage integrated workflow does RAG Foundry provide for building and evaluating RAG-enhanced large language models?",
+      "query_type": "procedural",
+      "reference_answer": "RAG Foundry integrates four stages: (1) data creation — building data-augmented datasets from internal or specialised knowledge sources; (2) training — fine-tuning LLMs such as Llama-3 and Phi-3 with diverse RAG configurations; (3) inference — running the trained RAG models to generate responses; and (4) evaluation — assessing performance on knowledge-intensive datasets. This enables rapid prototyping across multiple RAG configurations in a single unified workflow.",
+      "source_papers": ["RAG Foundry: A Framework for Enhancing LLMs for Retrieval Augmented Generation"]
+    },
+    {
+      "question": "What is the step-by-step decision procedure SURE-RAG uses to determine whether retrieved evidence is sufficient before generating or abstaining from an answer?",
+      "query_type": "procedural",
+      "reference_answer": "SURE-RAG's four-step procedure: (1) a pair-level claim-evidence verifier scores local relation distributions for each retrieved passage independently; (2) local distributions are aggregated into five interpretable answer-level signals: coverage, relation strength, disagreement, conflict, and retrieval uncertainty; (3) these signals are combined into a selective score representing evidence sufficiency; (4) a three-way decision is made — generate if support is established, flag refutation if evidence contradicts, and abstain if evidence is insufficient.",
+      "source_papers": ["SURE-RAG: Sufficiency and Uncertainty-Aware Evidence Verification for Selective Retrieval-Augmented Generation"]
+    },
+    {
+      "question": "How does THaMES automate test set generation for hallucination evaluation from an arbitrary text corpus?",
+      "query_type": "procedural",
+      "reference_answer": "THaMES automates test set generation through four steps: (1) ingest any corpus such as academic papers, news, or Wikipedia; (2) automatically generate question-answer pairs from the corpus content; (3) ensure quality through batch processing, weighted sampling, and counterfactual validation to achieve diversity and correctness; (4) benchmark the generated pairs across multiple mitigation strategies (ICL, RAG, PEFT) to produce a comprehensive hallucination evaluation covering both detection and mitigation.",
+      "source_papers": ["THaMES: An End-to-End Tool for Hallucination Mitigation and Evaluation in Large Language Models"]
+    },
+    {
+      "question": "What is the procedure described in 'Fine-Tuning is Fine, if Calibrated' for recovering a fine-tuned model's accuracy on classes not seen during the fine-tuning process?",
+      "query_type": "procedural",
+      "reference_answer": "After fine-tuning on a class subset, apply a post-processing calibration step that corrects the discrepant logit scales between fine-tuning classes and unseen classes. This calibration step — not retraining — restores the pre-trained model's accuracy on unseen classes. The fine-tuned model's feature representations for unseen classes are actually more discriminative than before fine-tuning; only the logit scaling is damaged and needs correction.",
+      "source_papers": ["Fine-Tuning is Fine, if Calibrated"]
+    },
+    {
+      "question": "How does FSLoRA enable clients with heterogeneous computational and communication constraints to participate in federated LoRA fine-tuning of LLMs?",
+      "query_type": "procedural",
+      "reference_answer": "FSLoRA uses a sketching mechanism: each client selectively updates a submatrix of a global LoRA module maintained by the server. Clients adjust their sketching ratios, which determine the rank of the submatrices they compute locally, to match their individual resource budgets. The server aggregates sketched updates from all clients into the full global LoRA module. Convergence guarantees characterise explicitly how the sketching ratios affect the convergence rate.",
+      "source_papers": ["Federated Sketching LoRA: A Flexible Framework for Heterogeneous Collaborative Fine-Tuning of LLMs"]
+    },
+    {
+      "question": "What is the procedure for controlling specific reasoning behaviours such as backtracking and uncertainty expression in thinking LLMs using steering vectors?",
+      "query_type": "procedural",
+      "reference_answer": "The procedure involves four steps: (1) run systematic experiments across diverse tasks to identify distinct reasoning behaviours exhibited by the thinking model such as backtracking, uncertainty expression, and example generation; (2) establish that each behaviour is mediated by a linear direction in the model's activation space; (3) extract steering vectors corresponding to these linear directions; (4) apply the vectors at inference time to modulate the target behaviour, increasing or decreasing it as desired. The approach is validated across three DeepSeek-R1-Distill model architectures.",
+      "source_papers": ["Understanding Reasoning in Thinking Language Models via Steering Vectors"]
+    },
+    {
+      "question": "How does S2G-RAG's S2G-Judge controller decide what to retrieve next and when to stop iterating in a multi-hop question answering setting?",
+      "query_type": "procedural",
+      "reference_answer": "At each retrieval turn, S2G-Judge makes two determinations: (1) a sufficiency check — whether the current evidence memory contains enough information to answer the question; (2) if insufficient, it outputs structured gap items that describe specifically what information is missing. These gap items are mapped directly into the next retrieval query, producing stable multi-turn retrieval trajectories. A compact sentence-level Evidence Context of relevant sentences is maintained across turns to reduce noise accumulation from irrelevant retrieved content.",
+      "source_papers": ["S2G-RAG: Structured Sufficiency and Gap Judging for Iterative Retrieval-Augmented QA"]
+    },
+    {
+      "question": "How does the Antidote framework recover safety alignment in LLMs after harmful fine-tuning attacks, and why is it more robust than defences applied during the fine-tuning stage?",
+      "query_type": "procedural",
+      "reference_answer": "Antidote applies a one-shot pruning step after the harmful fine-tuning stage to remove the specific harmful weights responsible for generating unsafe content, regardless of how those weights formed during fine-tuning. Unlike defences applied during fine-tuning — which fail when training hyperparameters such as learning rate or number of epochs are varied — Antidote is completely agnostic to fine-tuning hyperparameters. It consistently reduces harmful outputs while maintaining downstream task accuracy.",
+      "source_papers": ["Antidote: Post-fine-tuning Safety Alignment for Large Language Models against Harmful Fine-tuning"]
+    }
+  ]
+}

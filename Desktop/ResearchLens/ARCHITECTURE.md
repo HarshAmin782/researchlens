@@ -61,9 +61,9 @@ User Query
     ▼
 ┌─────────────────────────────────────┐
 │         EVALUATION LAYER            │
-│  50 QASPER questions                │
-│  Custom metrics (no external API)   │
-│  Faithfulness · Precision · Relevance│
+│  50 type-balanced questions         │
+│  (13F · 13C · 12S · 12P)           │
+│  Faithfulness · Correctness · AUC   │
 │  Latency benchmark per strategy     │
 └─────────────────────────────────────┘
 ```
@@ -119,6 +119,14 @@ procedural → Strategy B (Semantic RAG)
 
 ---
 
+## Generation Layer
+
+**Interactive pipeline (Notebooks 05/06, Streamlit demo):** `max_new_tokens=300`, `temperature=0.3`, prompt cap 3500 tokens. Temperature > 0 is required for the consistency signal in uncertainty quantification (needs two stochastic samples to compare).
+
+**Evaluation run (Notebook 07 v2):** `max_new_tokens=150`, `temperature=0.1`, `batch_size=4` with left-padding. Shorter output limit and near-deterministic temperature chosen for throughput (250 generations × 4 strategies) and measurement consistency, not quality. These settings apply only to evaluation and do not reflect what the interactive pipeline serves.
+
+---
+
 ## Contradiction Detection Pipeline
 
 Activated for consensus query type:
@@ -153,7 +161,9 @@ confidence = (
 ) * 100
 ```
 
-**Known limitation:** hybrid_rag retrieval scores (RRF values ~0.016) are not comparable to naive/semantic cosine scores (0.5–0.7). This artificially depresses confidence for hybrid strategy answers. Fix: normalise per-strategy before combining.
+**Strategy-aware normalisation (v2):** hybrid_rerank scores use sigmoid; hybrid_rag uses RRF_MAX normalisation; naive/semantic use cosine clamp to [0,1]. Prevents confidence > 100 for reranker answers and artificially low confidence for hybrid answers.
+
+**Measured calibration:** ROC-AUC = 0.782 on 50 type-balanced questions. GREEN band (confidence ≥ 80): 88.9% correct. RED band (confidence < 50): 0.0% correct. Gap: +88.9pp.
 
 ---
 
@@ -171,9 +181,9 @@ confidence = (
 
 ## Data
 
-**Knowledge base:** 100 ML/AI papers from arXiv, fetched programmatically via the `arxiv` Python library. Topics: large language models, RAG, transformers, fine-tuning, attention mechanisms.
+**Knowledge base:** 505 ML/AI papers from arXiv, fetched programmatically via the `arxiv` Python library. Topics: large language models (0–168), RAG systems (169–337), fine-tuning and attention (338–504).
 
-**Evaluation set:** 50 QA pairs from QASPER (allenai/qasper), filtered to free-form answers with length > 10 characters.
+**Evaluation set:** 50 type-balanced questions hand-authored against the 505-paper corpus — 13 factual, 13 comparative, 12 consensus, 12 procedural — with embedded `scoring_config` (formula: sentence_mean_of_max_cosine; thresholds: 0.55 factual/comparative/procedural, 0.45 consensus).
 
 **Chunking stats:**
 - Fixed chunks: 14,500 total, ~512 words average
