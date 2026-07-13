@@ -841,7 +841,7 @@ with tab2:
 
         st.markdown("""
         <div class="pull-quote">
-            Hybrid + Reranker leads on every quality metric. Routing accuracy: 72% on a type-balanced set — corrected from a circular 100% on a self-authored keyword test.
+            Hybrid + Reranker leads on correctness (68%). Adaptive Router matches pre-Phase-2 Hybrid + Reranker (64%) at 1,400ms less latency. Routing accuracy: 82% (embedding-centroid) — up from 72% keyword baseline, itself corrected from a circular 100% on a self-authored test.
         </div>
         """, unsafe_allow_html=True)
 
