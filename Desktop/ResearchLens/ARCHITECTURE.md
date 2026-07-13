@@ -185,9 +185,10 @@ confidence = (
 
 **Evaluation set:** 50 type-balanced questions hand-authored against the 505-paper corpus — 13 factual, 13 comparative, 12 consensus, 12 procedural — with embedded `scoring_config` (formula: sentence_mean_of_max_cosine; thresholds: 0.55 factual/comparative/procedural, 0.45 consensus).
 
-**Chunking stats:**
-- Fixed chunks: 14,500 total, ~512 words average
-- Semantic chunks: 15,476 total, ~400 words average
+**Chunking stats (post reference-section filtering):**
+- Fixed chunks: 8,933 total, ~512 words average
+- Semantic chunks: 9,561 total, ~400 words average
+- Reference pages removed: 39.0% of raw pages (page-level cascade on standalone "References" header; pre-header content on cutoff page salvaged)
 
 ---
 

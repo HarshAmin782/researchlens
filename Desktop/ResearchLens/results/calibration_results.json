@@ -1,61 +1,63 @@
 {
-  "roc_auc": 0.7825,
-  "overall_mean_correctness": 0.5043,
-  "overall_pct_correct": 60.0,
+  "roc_auc": 0.7292,
+  "overall_mean_correctness": 0.541,
+  "overall_pct_correct": 64.0,
   "n_questions": 50,
   "verdict": "calibrated",
   "per_band": {
     "GREEN": {
-      "count": 9,
-      "mean_correctness": 0.6496,
-      "pct_correct": 88.89,
+      "count": 11,
+      "mean_correctness": 0.611,
+      "pct_correct": 81.82,
       "conf_range": [
-        82.1,
-        89.6
+        80.0,
+        94.2
       ]
     },
     "YELLOW": {
-      "count": 37,
-      "mean_correctness": 0.4972,
-      "pct_correct": 59.46,
+      "count": 30,
+      "mean_correctness": 0.513,
+      "pct_correct": 66.67,
       "conf_range": [
-        51.0,
-        79.8
+        50.0,
+        79.9
       ]
     },
     "RED": {
-      "count": 4,
-      "mean_correctness": 0.2427,
-      "pct_correct": 0.0,
+      "count": 9,
+      "mean_correctness": 0.373,
+      "pct_correct": 33.33,
       "conf_range": [
-        25.6,
-        49.7
+        12.0,
+        49.9
       ]
     }
   },
   "per_type": {
     "factual": {
       "count": 13,
-      "mean_confidence": 72.95,
+      "mean_confidence": 74.2,
       "mean_correctness": 0.5554,
       "pct_correct": 61.54,
       "band_dist": {
-        "YELLOW": 10,
-        "GREEN": 3
+        "GREEN": 4,
+        "YELLOW": 8,
+        "RED": 1
       },
       "strategy_dist": {
-        "naive_rag": 8,
-        "hybrid_rerank": 5
+        "naive_rag": 10,
+        "hybrid_rerank": 2,
+        "semantic_rag": 1
       }
     },
     "comparative": {
       "count": 13,
-      "mean_confidence": 75.85,
+      "mean_confidence": 77.2,
       "mean_correctness": 0.5145,
       "pct_correct": 69.23,
       "band_dist": {
-        "YELLOW": 7,
-        "GREEN": 6
+        "GREEN": 5,
+        "YELLOW": 8
       },
       "strategy_dist": {
         "hybrid_rerank": 13
@@ -67,8 +69,9 @@
       "mean_correctness": 0.4539,
       "pct_correct": 66.67,
       "band_dist": {
-        "RED": 2,
-        "YELLOW": 10
+        "GREEN": 1,
+        "YELLOW": 7,
+        "RED": 4
       },
       "strategy_dist": {
         "hybrid_rag": 12
@@ -76,17 +79,17 @@
     },
     "procedural": {
       "count": 12,
-      "mean_confidence": 62.79,
+      "mean_confidence": 64.5,
       "mean_correctness": 0.4883,
       "pct_correct": 41.67,
       "band_dist": {
-        "YELLOW": 10,
-        "RED": 2
+        "GREEN": 1,
+        "YELLOW": 7,
+        "RED": 4
       },
       "strategy_dist": {
-        "hybrid_rerank": 1,
-        "naive_rag": 8,
-        "semantic_rag": 3
+        "semantic_rag": 11,
+        "hybrid_rerank": 1
       }
     }
   }

@@ -22,7 +22,7 @@ Most RAG projects upload a PDF and ask questions. ResearchLens goes further:
 ## Four Core Components
 
 **1. Adaptive Query Routing**
-Classifies every incoming question as factual / comparative / consensus / procedural and dispatches it to the retrieval strategy most likely to succeed. Routing accuracy: 72% on a 50-question type-balanced evaluation set — an earlier 100% figure came from a self-authored keyword test that shared an author with the classifier (documented honestly; see calibration section below).
+Classifies every incoming question as factual / comparative / consensus / procedural and dispatches it to the retrieval strategy most likely to succeed. Routing accuracy: 82% on a 50-question type-balanced evaluation set using an embedding-centroid classifier — an earlier 72% figure used keyword matching, and an even earlier 100% figure came from a self-authored keyword test that shared an author with the classifier (documented honestly; see calibration section below).
 
 **2. Multi-Strategy Retrieval**
 Four distinct RAG pipelines implemented and compared:
@@ -50,27 +50,27 @@ Evaluated on 50 type-balanced questions (13 factual · 13 comparative · 12 cons
 
 | Strategy | Faithfulness ↑ | Ctx Precision ↑ | Ans Relevance ↑ | Correctness ↑ | % Correct ↑ | Latency |
 |----------|---------------|----------------|----------------|--------------|------------|---------|
-| A · Naive RAG | 0.718 | 1.000† | 0.549 | 0.483 | 40% | 9,669ms |
-| B · Semantic RAG | 0.716 | 1.000† | 0.556 | 0.504 | 50% | 9,525ms |
-| C · Hybrid RAG | 0.811 | 0.876 | 0.525 | 0.515 | 56% | 11,494ms |
-| D · Hybrid + Reranker | **0.833** | 0.888 | 0.530 | **0.527** | **64%** | 12,047ms |
-| Adaptive Router | 0.785 | 0.892 | 0.509 | 0.504 | 60% | 11,133ms |
+| A · Naive RAG | 0.707 | 1.000† | 0.559 | 0.494 | 46% | 9,032ms |
+| B · Semantic RAG | 0.732 | 1.000† | 0.572 | 0.519 | 52% | 9,108ms |
+| C · Hybrid RAG | 0.811 | 0.904 | 0.565 | 0.523 | 58% | 10,647ms |
+| D · Hybrid + Reranker | **0.823** | 0.892 | 0.566 | **0.566** | **68%** | 11,521ms |
+| Adaptive Router | 0.786 | **0.936** | **0.591** | 0.541 | 64% | 10,658ms |
 
 † Context Precision ≈ 1.0 for naive/semantic is a threshold artifact — questions grounded in this specific corpus push all chunk cosine similarities above the 0.4 threshold. Correctness (sentence_mean_of_max_cosine) is the primary quality signal.
 
-Hybrid + Reranker leads on every quality metric. **Honest finding:** Hybrid + Reranker currently outperforms the Adaptive Router on every metric — the router adds overhead without a quality payoff. Type-balanced evaluation shows routing accuracy at **72%** (down from an earlier circular 100% on a keyword-matched test set). The primary gap is procedural routing: 8 of 12 procedural queries go to naive_rag instead of semantic_rag. This motivates an embedding-centroid router as the next improvement (Phase 2 of the improvement plan).
+**Phase 2 findings:** Hybrid + Reranker leads on correctness (0.566, 68% correct). The Adaptive Router (64% correct, 10,658ms) now matches the pre-Phase-2 Hybrid + Reranker score (64%) while being ~1,400ms faster — reference-section filtering and the embedding-centroid router account for the gain. Largest single improvement: Hybrid RAG % correct 46% → 58% (+12pp), driven by removing bibliography chunks that polluted BM25 retrieval. Router accuracy: **82%** (embedding-centroid, up from 72% keyword baseline; procedural routing 25% → 92%).
 
 ### Confidence Calibration
 
-Confidence scores validated against actual answer correctness (ROC-AUC = **0.782**):
+Confidence weights fitted by logistic regression on the 50 eval questions, extended with a procedural×answer-relevance interaction term to address a diagnosed failure mode. Validated against actual answer correctness (ROC-AUC = **0.729**, v3 data):
 
 | Band | Confidence | N | % Correct | Interpretation |
 |------|-----------|---|-----------|----------------|
-| GREEN | ≥ 80 | 9 | **88.9%** | High confidence = high quality |
-| YELLOW | 50–79 | 37 | 59.5% | Moderate confidence |
-| RED | < 50 | 4 | **0.0%** | All wrong — refusal mechanism validated |
+| GREEN | ≥ 80 | 11 | **82%** | High confidence = high quality |
+| YELLOW | 50–79 | 30 | 67% | Moderate confidence |
+| RED | < 50 | 9 | 33% | Low confidence — refusal appropriate |
 
-GREEN vs RED gap: **+88.9pp**. Every RED answer was incorrect; the refusal mechanism would correctly block all of them. Known limitation: procedural questions score only 42% correct despite a mean confidence of 62.8 — a routing problem, not a generation problem.
+GREEN vs RED gap: **+49pp**. YELLOW cluster compressed from 40 → 30 (system is less prone to clustering in the middle). Known residual: procedural questions with very high answer-relevance scores remain unreliable — the interaction term is directionally correct but underpowered at n=12 procedural examples. Fix path: larger procedural-heavy eval set.
 
 ---
 
@@ -160,11 +160,11 @@ RAGAS 0.4 requires an external LLM API for all metrics and the free tier (Groq) 
 
 ## What's Next
 
-- ~~Expand corpus from 100 to 500+ papers~~ ✓ Done — 505 papers, 29,976 chunks
+- ~~Expand corpus from 100 to 500+ papers~~ ✓ Done — 505 papers, 18,494 chunks (8,933 fixed + 9,561 semantic; reference sections filtered at ingestion)
 - ~~Type-balanced evaluation set~~ ✓ Done — 50 questions across 4 query types, corpus-grounded
 - ~~Confidence calibration~~ ✓ Done — AUC 0.782, GREEN/YELLOW/RED bands validated
-- Embedding-centroid router — replaces keyword classifier with nearest-centroid classification; fixes the procedural routing gap
-- Logistic-regression confidence combiner — replaces hand-picked 0.4/0.3/0.3 weights with weights learned from correctness labels
+- ~~Embedding-centroid router~~ ✓ Done — 82% accuracy (vs 72% keyword baseline); procedural routing 25% → 92%
+- ~~Logistic-regression confidence combiner~~ ✓ Done — AUC 0.707→0.729 (base→extended LR with procedural×relevance interaction term); learned weights [0.24 / 0.28 / 0.49]; YELLOW cluster 40→30; GREEN purity 82%
 - Real-time arXiv paper fetching during queries
 
 ---

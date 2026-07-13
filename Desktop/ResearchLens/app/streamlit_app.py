@@ -893,7 +893,7 @@ with tab2:
 
         # ── Calibration section ───────────────────────────────────────────────
         st.markdown('<div class="rule-double" style="margin-top:2.5rem"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="section-label" style="margin-bottom:0.8rem">Confidence Calibration · Action 1.1</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-label" style="margin-bottom:0.8rem">Confidence Calibration · Action 2.1</div>', unsafe_allow_html=True)
 
         try:
             cal = load_calibration()
@@ -928,11 +928,12 @@ with tab2:
 
             st.markdown(f"""
             <div class="footnote">
-                Confidence is well-calibrated overall (AUC {cal['roc_auc']:.3f}): GREEN answers are correct {pb['GREEN']['pct_correct']:.0f}% of the time;
-                RED answers 0% — the refusal mechanism works as intended. GREEN vs RED gap: +{pb['GREEN']['pct_correct'] - pb['RED']['pct_correct']:.0f}pp.<br>
-                Known limitation: procedural questions score only {proc.get('pct_correct', 42):.0f}% correct despite a mean confidence of {proc.get('mean_confidence', 62.8):.1f}
-                — the keyword router sends 8 of 12 procedural queries to naive_rag instead of semantic_rag,
-                depressing both quality and calibration for this type. Addressed in Phase 2 (embedding-centroid router).
+                Confidence weights fitted by logistic regression on 50 eval questions (Action 2.1), extended with a
+                procedural×answer-relevance interaction term. AUC {cal['roc_auc']:.3f}: GREEN answers correct {pb['GREEN']['pct_correct']:.0f}% of the time,
+                RED correct {pb['RED']['pct_correct']:.0f}% — GREEN vs RED gap: +{pb['GREEN']['pct_correct'] - pb['RED']['pct_correct']:.0f}pp.<br>
+                Known residual: procedural questions with very high answer-relevance scores remain unreliable — the interaction
+                coefficient (−0.064) is directionally correct but underpowered at n=12 procedural examples (needs ~−0.649 to
+                fully cancel the effect). Fix path: larger procedural-heavy eval set.
             </div>
             """, unsafe_allow_html=True)
 
