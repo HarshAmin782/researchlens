@@ -311,6 +311,126 @@
       "query_type": "procedural",
       "reference_answer": "Antidote applies a one-shot pruning step after the harmful fine-tuning stage to remove the specific harmful weights responsible for generating unsafe content, regardless of how those weights formed during fine-tuning. Unlike defences applied during fine-tuning — which fail when training hyperparameters such as learning rate or number of epochs are varied — Antidote is completely agnostic to fine-tuning hyperparameters. It consistently reduces harmful outputs while maintaining downstream task accuracy.",
       "source_papers": ["Antidote: Post-fine-tuning Safety Alignment for Large Language Models against Harmful Fine-tuning"]
+    },
+    {
+      "question": "What is the step-by-step procedure Evol-Instruct uses to automatically generate increasingly complex training instructions for WizardLM without requiring human authorship at each step?",
+      "query_type": "procedural",
+      "reference_answer": "Evol-Instruct operates through iterative rewriting of seed instructions. In each round, a teacher LLM rewrites existing instructions using one of two evolution strategies: (1) in-depth evolution — adds constraints, increases the number of reasoning steps, or deepens task complexity; (2) in-breadth evolution — generates a new but topically related instruction at similar difficulty. A filter removes failed evolutions (unchanged, truncated, or contradictory outputs). The surviving instructions become the new seed pool for the next round, accumulating a corpus of complex, diverse instructions without per-instruction human labeling.",
+      "source_papers": ["WizardLM: Empowering large pre-trained language models to follow complex instructions"]
+    },
+    {
+      "question": "How does WizardCoder adapt the Evol-Instruct approach specifically for code instruction data, and what code-specific criteria guide each evolution step?",
+      "query_type": "procedural",
+      "reference_answer": "WizardCoder evolves a seed set of code instructions from Code Alpaca rather than natural-language instructions. In-depth code evolution: add new requirements to the function signature, introduce edge cases, or require handling of additional data structures. In-breadth code evolution: generate a new coding task of comparable complexity on a different topic. After each step, evolved instructions are filtered by a code executor or complexity scorer to discard non-compilable or trivially duplicated outputs. Only surviving instructions enter the next round's pool.",
+      "source_papers": ["WizardCoder: Empowering Code Large Language Models with Evol-Instruct"]
+    },
+    {
+      "question": "What procedure does the Demystifying Instruction Mixing study recommend for combining multiple instruction dataset types during fine-tuning, and what three categories of instructions does it evaluate?",
+      "query_type": "procedural",
+      "reference_answer": "The study evaluates three instruction categories: (1) NLP task-specific instructions such as classification, named entity recognition, and summarization; (2) general-domain open-ended instructions such as dialogue and creative writing; (3) code and math instructions. The recommended procedure: evaluate each category in isolation using the same evaluation protocol; construct a mixed dataset by weighted sampling across all three categories to prevent any single type from dominating; then measure whether the mixture outperforms each category alone. The study finds multi-category mixing consistently improves performance over single-category fine-tuning.",
+      "source_papers": ["Demystifying Instruction Mixing for Fine-tuning Large Language Models"]
+    },
+    {
+      "question": "What is the recommended procedure for adapting a general-purpose instruction-tuned language model to specialized medical machine translation, according to the study on instruction-tuned LLMs in this domain?",
+      "query_type": "procedural",
+      "reference_answer": "The study finds few-shot prompting with domain-specific examples outperforms zero-shot adaptation. Procedure: (1) assemble a small set of medical translation examples including domain terminology and source-target phrase pairs; (2) construct prompts that include glossary terms and translation pairs as few-shot context; (3) generate multiple candidate translations at low temperature to reduce output variance; (4) apply consistency scoring or reference-free quality estimation to select the best candidate. When labeled data is available, fine-tuning on even a small domain-specific corpus further improves terminology accuracy and domain conformity.",
+      "source_papers": ["Instruction-tuned Large Language Models for Machine Translation in the Medical Domain"]
+    },
+    {
+      "question": "What is the optimization procedure CROP uses to generate prompts that reduce token costs during LLM reasoning while maintaining task accuracy?",
+      "query_type": "procedural",
+      "reference_answer": "CROP formulates prompt optimization as a regularized objective combining task accuracy and token-cost reduction. Procedure: (1) start from a prompt that produces correct chain-of-thought reasoning traces; (2) define an objective with a task-accuracy term and a token-cost penalty term; (3) generate candidate compressed prompts that shorten reasoning steps while staying above an accuracy threshold; (4) evaluate candidates on a validation set using both metrics; (5) select the prompt minimizing the accuracy-cost trade-off. The token-cost regularizer is the key addition — without it, standard prompt optimization maximizes accuracy but ignores length.",
+      "source_papers": ["CROP: Token-Efficient Reasoning in Large Language Models via Regularized Prompt Optimization"]
+    },
+    {
+      "question": "What is the process for constructing and executing a constrained LLM query using the LMQL language, and how does the runtime enforce output constraints without post-hoc filtering?",
+      "query_type": "procedural",
+      "reference_answer": "LMQL programs mix natural-language prompt text with Python-style control flow and constraint declarations in a single program. Procedure: (1) write an LMQL query that interleaves natural language strings with control flow such as conditionals and loops, and output constraint annotations such as token length limits or allowed token sets; (2) the LMQL compiler translates the program into a sequence of partial prompting steps; (3) at each generation step, the runtime applies a mask over the LLM's output vocabulary enforcing the declared constraints; (4) partial completions are returned to the control flow, which may branch or iterate; (5) the fully completed result is returned to the caller. Constraints are enforced through masked token distributions during generation, not by rejecting outputs after the fact.",
+      "source_papers": ["Prompting Is Programming: A Query Language for Large Language Models"]
+    },
+    {
+      "question": "What is the adaptive shield prompting procedure AdaShield uses to protect multimodal large language models from structure-based jailbreak attacks?",
+      "query_type": "procedural",
+      "reference_answer": "Structure-based attacks embed harmful intent in non-text modalities such as images or structured data to bypass text-level safety filters. AdaShield defends through: (1) analyzing the structure of the incoming multimodal prompt to classify the attack type, such as image-embedded text or structured data injection; (2) retrieving a task-appropriate shield prompt from a predefined library based on the detected structure; (3) prepending the selected shield prompt to the original input before it reaches the MLLM; (4) the shield prompt instructs the model to treat that structural modality as untrusted and ignore injected directives. The adaptive component is selecting a different shield prompt per detected attack structure rather than using one fixed prefix for all queries.",
+      "source_papers": ["AdaShield: Safeguarding Multimodal Large Language Models from Structure-based Attack via Adaptive Shield Prompting"]
+    },
+    {
+      "question": "What are the main architectural layers of a production-grade RAG system identified by the RAG Stack survey, and what class of trust failure does each layer introduce?",
+      "query_type": "procedural",
+      "reference_answer": "The survey identifies four layers: (1) Ingestion layer — document parsing, chunking, embedding, and indexing; trust failure is data quality, where errors compound downstream. (2) Retrieval layer — query transformation, multi-vector search, and re-ranking; trust failure is relevance and coverage, where the right chunk is never found. (3) Generation layer — prompt construction, LLM inference, and output filtering; trust failure is hallucination and faithfulness, where the answer contradicts retrieved context. (4) Evaluation layer — end-to-end metrics, per-component diagnostics, and A/B testing; trust failure is deployment confidence, where the system behaves differently in production. Each layer has distinct failure modes that must be addressed independently.",
+      "source_papers": ["Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems"]
+    },
+    {
+      "question": "What procedure does the RAG hyperparameter optimization study use to identify optimal RAG configurations, and what search strategy does it recommend when compute budget is limited?",
+      "query_type": "procedural",
+      "reference_answer": "The study evaluates five HPO algorithms over five diverse datasets, benchmarking the largest RAG HPO search space to date. The procedure: (1) define the parameter search space covering chunk size, chunk overlap, top-k retrieved documents, embedding model selection, and LLM temperature; (2) run each HPO algorithm with a fixed evaluation budget using three evaluation metrics as optimization targets; (3) compare algorithms by final answer quality and number of evaluations required. Key findings: RAG HPO can be done efficiently using either greedy search or random search — full grid search is unnecessary; all HPO approaches significantly boost RAG performance over un-optimized baselines. For greedy HPO, optimizing model selection first is preferable to the common practice of following the RAG pipeline order from chunking through to generation.",
+      "source_papers": ["An Analysis of Hyper-Parameter Optimization Methods for Retrieval Augmented Generation"]
+    },
+    {
+      "question": "What are the three optimization stages of the Higress-RAG pipeline and how does each stage address a distinct retrieval failure mode in enterprise settings?",
+      "query_type": "procedural",
+      "reference_answer": "Higress-RAG addresses retrieval failures in sequence: (1) Dual hybrid retrieval — combines dense vector search and BM25 keyword search, then merges results using a fusion re-ranking pass. Addresses recall failure: neither dense-only nor keyword-only retrieval catches all relevant documents. (2) Adaptive routing — classifies the incoming query type and selects the most appropriate retrieval strategy for it. Addresses mismatch failure: a single retrieval strategy performs inconsistently across different query types. (3) CRAG post-processing — evaluates retrieved evidence quality and triggers a web search fallback or re-ranking when retrieval confidence falls below a threshold. Addresses precision failure: low-quality retrieval passes unfiltered to the generator.",
+      "source_papers": ["Higress-RAG: A Holistic Optimization Framework for Enterprise Retrieval-Augmented Generation via Dual Hybrid Retrieval, Adaptive Routing, and CRAG"]
+    },
+    {
+      "question": "What debugging workflow does the interactive RAG inspection framework enable for developers, and which specific failure modes does it surface?",
+      "query_type": "procedural",
+      "reference_answer": "The framework provides four capabilities: (1) Query-level chunk inspection — shows which chunks were retrieved for a given query along with their relevance scores, making retrieval quality visible; (2) Component isolation — lets developers re-run individual pipeline stages such as chunking, embedding, retrieval, and generation independently to locate which stage introduced a failure; (3) Side-by-side configuration comparison — runs two RAG configurations on the same query and displays differences in retrieved chunks and final answers; (4) Failure mode tagging — automatically flags common patterns including retrieval misses where relevant chunks are not retrieved, faithfulness failures where the answer contradicts retrieved context, and latency hotspots. This makes RAG failures diagnosable rather than opaque.",
+      "source_papers": ["RAG Without the Lag: Interactive Debugging for Retrieval-Augmented Generation Pipelines"]
+    },
+    {
+      "question": "How does end-to-end RAG fine-tuning jointly optimize the DPR retriever and the reader LM, and what engineering challenge distinguishes it from retriever-frozen approaches?",
+      "query_type": "procedural",
+      "reference_answer": "Standard RAG fine-tuning freezes the DPR retriever and trains only the reader on answer generation. End-to-end fine-tuning propagates gradients through both. Procedure: (1) encode the question with the DPR question encoder and retrieve top-k passages; (2) concatenate retrieved passages with the question and feed to the reader LM; (3) compute task loss on the reader's answer output; (4) backpropagate gradients from the reader loss through the reader and into the DPR question encoder, while the passage encoder remains frozen for efficiency. The key engineering challenge is that the set of retrieved passages changes as the question encoder weights update — the document index must be periodically refreshed to remain consistent with the current encoder. This retrieval-training feedback loop is absent in reader-only fine-tuning.",
+      "source_papers": ["Fine-tune the Entire RAG Architecture (including DPR retriever) for Question-Answering"]
+    },
+    {
+      "question": "What is the zero-init attention mechanism LLaMA-Adapter uses to inject adapter modules into LLaMA, and why is this initialization scheme critical for training stability?",
+      "query_type": "procedural",
+      "reference_answer": "LLaMA-Adapter prepends a small set of learnable prompt tokens to the key-value pairs at the top transformer layers of LLaMA. Without special initialization, the adapter's attention contribution disrupts the pre-trained model's attention patterns from the first training step, causing instability. The zero-init attention solution: (1) initialize a learnable gating scalar per adapter layer to exactly zero; (2) multiply the adapter's attention output by this gate before adding to the residual stream; (3) since the gate starts at zero, the adapter contributes nothing initially and the model behaves identically to the pre-trained base; (4) as training proceeds, the gate grows nonzero, gradually introducing the adapter's influence. This allows fine-tuning to begin from a stable baseline and incorporate the adapter only as evidence accumulates that it helps.",
+      "source_papers": ["LLaMA-Adapter: Efficient Fine-tuning of Language Models with Zero-init Attention"]
+    },
+    {
+      "question": "What is the procedure for using very large dropout to improve out-of-distribution generalization during fine-tuning, and why does it outperform standard low-dropout fine-tuning under distribution shift?",
+      "query_type": "procedural",
+      "reference_answer": "The procedure applies dropout rates significantly higher than standard, for example p=0.5 to 0.8 versus the typical p=0.1, throughout all layers during fine-tuning on in-distribution data. At test time on out-of-distribution data, dropout is maintained and predictions are averaged over multiple stochastic forward passes using Monte Carlo dropout inference. This creates an implicit ensemble: each forward pass activates a different subnetwork, and averaging reduces variance caused by the distribution shift. Standard low-dropout fine-tuning over-specializes to the in-distribution domain, making learned representations brittle when test data comes from a different distribution. Very large dropout forces the model to develop representations that generalize across many subnetwork configurations rather than specializing to one.",
+      "source_papers": ["Fine-tuning with Very Large Dropout"]
+    },
+    {
+      "question": "What step-by-step procedure does Surgery use to identify and selectively repair the attention heads most damaged by a harmful fine-tuning attack on an LLM?",
+      "query_type": "procedural",
+      "reference_answer": "Surgery measures sink divergence — how much each attention head's concentration of attention mass on the first token has shifted from the original model. Procedure: (1) run a calibration forward pass through both the original pre-trained model and the harmfully fine-tuned model on a set of clean inputs; (2) compute per-head sink divergence by comparing first-token attention distributions between the two models; (3) rank heads by sink divergence and identify the top-K most affected; (4) apply a safety alignment constraint or selectively re-initialize only those heads; (5) run a brief targeted alignment pass using safe data, updating only the identified heads while holding all others frozen. This surgical targeting avoids full model realignment while addressing the root cause of harmful behavior in the affected attention heads.",
+      "source_papers": ["Surgery: Mitigating Harmful Fine-Tuning for Large Language Models via Attention Sink"]
+    },
+    {
+      "question": "How does Distributed Dynamic Fine-Tuning select which attention heads to train for a downstream task, and what constraint drives the selection in memory-limited device settings?",
+      "query_type": "procedural",
+      "reference_answer": "Rather than freezing a fixed set of heads, the approach dynamically identifies heads most important for the current downstream task. Procedure: (1) run a brief importance scoring pass on a small task sample, ranking each attention head by gradient magnitude or task-specific activation strength; (2) select the top-K heads by importance, subject to a total memory bandwidth budget that limits how many heads can be active simultaneously across devices; (3) distribute the selected heads across available devices; (4) fine-tune only those heads while keeping all others frozen; (5) optionally re-score and reselect heads at intervals during training as gradients evolve. The driving constraint is aggregate memory bandwidth across all devices, not just per-device memory — the method is designed specifically for settings where a single device cannot hold all active parameter gradients.",
+      "source_papers": ["You Don't Need All Attentions: Distributed Dynamic Fine-Tuning for Foundation Models"]
+    },
+    {
+      "question": "What is the Contrast-Regularized Fine-Tuning procedure for adapting contrastive self-supervised models to downstream tasks, and what failure mode of standard cross-entropy fine-tuning does it address?",
+      "query_type": "procedural",
+      "reference_answer": "Contrastive self-supervised models produce instance-discriminative features uniformly distributed in embedding space. Standard cross-entropy fine-tuning collapses these features toward class centroids, destroying the uniform geometry that made the representations rich. Contrast-Regularized Fine-Tuning adds a contrastive regularization term to the fine-tuning objective. Procedure: (1) compute the standard cross-entropy loss on labeled downstream training data; (2) compute a contrastive regularization term measuring how much the fine-tuned model's pairwise similarities deviate from the pre-trained model's pairwise similarities; (3) combine both losses with a tunable weighting coefficient; (4) fine-tune using the joint objective. The regularization preserves the beneficial uniform feature structure from contrastive pre-training while still adapting the model to downstream class labels.",
+      "source_papers": ["Unleashing the Power of Contrastive Self-Supervised Visual Models via Contrast-Regularized Fine-Tuning"]
+    },
+    {
+      "question": "What is the two-stage LoRA fine-tuning pipeline for adapting video diffusion transformers to cinematic scene synthesis from small datasets, and why does it decouple visual style from motion generation?",
+      "query_type": "procedural",
+      "reference_answer": "Learning visual style and motion simultaneously from a small dataset causes the model to conflate stylistic appearance with temporal dynamics, producing inconsistent style or erratic motion. The two-stage pipeline decouples them: Stage 1 — apply LoRA adapters to the cross-attention layers of the image backbone and fine-tune on reference frames to learn the target visual style including color grading, lighting, and texture. Stage 2 — freeze the Stage 1 style LoRA and apply a separate LoRA to the temporal attention layers, fine-tuning on motion sequences to learn scene-specific dynamics. By learning style first and then motion with style frozen, the temporal LoRA cannot overwrite the learned visual features. The result is consistent style across frames with scene-appropriate motion.",
+      "source_papers": ["Fine-Tuning Open Video Generators for Cinematic Scene Synthesis: A Small-Data Pipeline with LoRA and Wan2.1 I2V"]
+    },
+    {
+      "question": "What experimental procedure does the mechanistic interpretability study use to determine how instruction fine-tuning modifies internal circuits in LLMs, and what does it find about nodes versus edges?",
+      "query_type": "procedural",
+      "reference_answer": "The study applies circuit analysis to tasks where fine-tuning yields substantial performance gains, avoiding tasks where the base model already performs well. Procedure: (1) identify circuits in the base pre-trained model using activation patching — systematically ablate or restore individual attention heads and MLP components while measuring task output change, isolating which nodes are causally necessary; (2) record the edges — the connections and information flow routing between identified nodes; (3) fine-tune the model using various methods and re-run circuit discovery at multiple training checkpoints; (4) compare nodes and edges before and after fine-tuning. Key finding: nodes (the specific attention heads and components) maintain high similarity before and after fine-tuning, but edges (the connections between components) undergo significant changes — contradicting prior work showing fine-tuning only adds components. Applied result: a circuit-aware LoRA assigns ranks to layers by the magnitude of edge changes, achieving an average 2.46% improvement over standard LoRA.",
+      "source_papers": ["Towards Understanding Fine-Tuning Mechanisms of LLMs via Circuit Analysis"]
+    },
+    {
+      "question": "What is the recommended decision procedure for selecting between full fine-tuning, LoRA, and QLoRA when adapting a large language model to specialized legal text classification under resource constraints?",
+      "query_type": "procedural",
+      "reference_answer": "The paper provides a systematic evaluation on unfair-clause detection in Terms of Service documents. Decision procedure: (1) if sufficient GPU memory is available, full fine-tuning achieves the highest classification accuracy; (2) if memory is limited, LoRA at rank 8 to 16 with a small learning rate approximates full fine-tuning performance at a fraction of the memory cost and is the recommended option for constrained settings; (3) if only free-tier GPU resources with 8 GB or less are available, QLoRA using 4-bit NF4 quantization combined with LoRA adapters provides acceptable accuracy with significantly reduced memory footprint; (4) zero-shot prompting of unmodified LLMs performs substantially below all fine-tuned variants on this specialized task. The paper recommends against zero-shot for domain-specific legal classification whenever even a small labeled dataset is available.",
+      "source_papers": ["Text to Trust: Evaluating Fine-Tuning and LoRA Trade-offs in Language Models for Unfair Terms of Service Detection"]
     }
   ]
 }
