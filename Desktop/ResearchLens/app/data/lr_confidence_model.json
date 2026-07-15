@@ -1,0 +1,29 @@
+{
+  "signal_order": [
+    "retrieval_norm",
+    "faithfulness",
+    "answer_relevance",
+    "is_proc_x_relev"
+  ],
+  "coef": [
+    -0.01414726444782932,
+    0.36998756894936796,
+    0.9372500578640722,
+    -0.6098535678267932
+  ],
+  "intercept": -0.40536332001740616,
+  "scaler_mean": [
+    0.6772782224778214,
+    0.7828284144425586,
+    0.5493042813880104,
+    0.24098688576902663
+  ],
+  "scaler_scale": [
+    0.16688466367715837,
+    0.1381244352108554,
+    0.16153718001515344,
+    0.2850669788981318
+  ],
+  "auc_ext": 0.7958,
+  "note": "Extracted from lr_confidence_model.pkl (Action 3.5 extended LR) for sklearn-free numpy inference. P(correct)=sigmoid(((x-scaler_mean)/scaler_scale) . coef + intercept)*100, x=[retrieval_norm, faithfulness, answer_relevance, is_procedural*answer_relevance]."
+}

@@ -488,20 +488,22 @@ def load_calibration():
 @st.cache_resource
 def load_router_and_confidence():
     """Production centroid router + 4-feature extended LR confidence model (Action 3.4).
-    Returns (centroids, lr_bundle); either may be None if its file is missing, in which
-    case the Search tab falls back to keyword routing / the hand-weighted formula."""
-    centroids, lr_bundle = None, None
+    The LR is loaded as plain JSON params (coef/intercept/scaler) and applied with numpy —
+    no scikit-learn dependency at runtime. Returns (centroids, lr_params); either may be None
+    if its file is missing, in which case the Search tab falls back to keyword routing / the
+    hand-weighted formula."""
+    centroids, lr_params = None, None
     try:
         with open(DATA_DIR / 'query_centroids.pkl', 'rb') as f:
             centroids = pickle.load(f)
     except Exception:
         centroids = None
     try:
-        with open(DATA_DIR / 'lr_confidence_model.pkl', 'rb') as f:
-            lr_bundle = pickle.load(f)
+        with open(DATA_DIR / 'lr_confidence_model.json', 'r') as f:
+            lr_params = json.load(f)
     except Exception:
-        lr_bundle = None
-    return centroids, lr_bundle
+        lr_params = None
+    return centroids, lr_params
 
 
 @st.cache_data
@@ -645,10 +647,11 @@ def extractive_answer(query, chunks, embed_model, max_sentences=3):
     return " ".join(sentences[i] for i in top)
 
 
-def compute_confidence(query, chunks, answer, embed_model, selected, query_type, lr_bundle):
+def compute_confidence(query, chunks, answer, embed_model, selected, query_type, lr_params):
     """4-feature extended-LR confidence (Action 3.4). Signal order matches the Kaggle model:
     [retrieval_norm, faithfulness, answer_relevance, is_procedural × answer_relevance].
-    Falls back to the pre-3.4 hand-weighted formula if lr_bundle is None."""
+    Inference is pure numpy from lr_params (coef/intercept/scaler) — no scikit-learn.
+    Falls back to the pre-3.4 hand-weighted formula if lr_params is None."""
     scores = [c['score'] for c in chunks]
     if selected == 'hybrid':
         max_rrf = 1/60 + 1/61
@@ -666,10 +669,11 @@ def compute_confidence(query, chunks, answer, embed_model, selected, query_type,
 
     is_proc = 1 if query_type == 'procedural' else 0
 
-    if lr_bundle is not None:
-        feats = [[retrieval, faithfulness, answer_relevance, is_proc * answer_relevance]]
-        conf = float(lr_bundle['model'].predict_proba(
-            lr_bundle['scaler'].transform(feats))[0, 1]) * 100
+    if lr_params is not None:
+        x     = np.array([retrieval, faithfulness, answer_relevance, is_proc * answer_relevance])
+        z     = (x - np.array(lr_params['scaler_mean'])) / np.array(lr_params['scaler_scale'])
+        logit = float(z @ np.array(lr_params['coef']) + lr_params['intercept'])
+        conf  = (1.0 / (1.0 + np.exp(-logit))) * 100
     else:
         conf = (retrieval * 0.4 + faithfulness * 0.3 + answer_relevance * 0.3) * 100
 
@@ -744,7 +748,7 @@ with tab1:
     else:
         bm25_index, bm25_metadata, fixed_chunks, semantic_chunks, embed_model, fixed_col, sem_col = load_indexes()
         paper_urls = load_paper_urls()
-        centroids, lr_bundle = load_router_and_confidence()
+        centroids, lr_params = load_router_and_confidence()
 
         query_type = centroid_classify(query, embed_model, centroids)
 
@@ -814,7 +818,7 @@ with tab1:
 
             if answer:
                 conf, signals = compute_confidence(query, results, answer, embed_model,
-                                                   selected, query_type, lr_bundle)
+                                                   selected, query_type, lr_params)
                 bar_color = '#2D6A2D' if conf >= 80 else '#8B6914' if conf >= 50 else '#6B0000'
                 badge = 'High confidence' if conf >= 80 else 'Moderate confidence' if conf >= 50 else 'Low confidence'
                 source_note = ('Mistral-class LLM · grounded in retrieved passages'
