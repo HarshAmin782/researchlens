@@ -865,15 +865,15 @@ with tab2:
                 <span class="stat-cap">arXiv papers</span>
             </div>
             <div class="stat-cell">
-                <span class="stat-num">50</span>
+                <span class="stat-num">70</span>
                 <span class="stat-cap">type-balanced eval questions</span>
             </div>
             <div class="stat-cell">
-                <span class="stat-num">72%</span>
-                <span class="stat-cap">routing accuracy</span>
+                <span class="stat-num">74%</span>
+                <span class="stat-cap">routing accuracy (out-of-sample)</span>
             </div>
             <div class="stat-cell">
-                <span class="stat-num">0.782</span>
+                <span class="stat-num">0.796</span>
                 <span class="stat-cap">calibration AUC</span>
             </div>
         </div>
@@ -927,7 +927,7 @@ with tab2:
             † Context Precision — fraction of retrieved chunks with cosine similarity &gt; 0.4 to query · ≈1.0 for naive/semantic is a threshold artifact on this corpus<br>
             † Answer Relevance — cosine similarity between query embedding and answer embedding<br>
             † Correctness — sentence_mean_of_max_cosine vs. reference answer; threshold 0.55 (factual/comparative/procedural) / 0.45 (consensus)<br>
-            † Evaluated on 50 type-balanced questions · 505-paper corpus · Mistral-7B-Instruct-v0.2 on Kaggle T4 GPU · best values underlined
+            † Evaluated on 70 type-balanced questions · 505-paper corpus · Mistral-7B-Instruct-v0.2 on Kaggle T4 GPU · best values underlined
         </div>
         """, unsafe_allow_html=True)
 
