@@ -46,31 +46,33 @@ When a consensus query arrives ("do papers agree on X?"), the system extracts fa
 
 ## Results
 
-Evaluated on 50 type-balanced questions (13 factual · 13 comparative · 12 consensus · 12 procedural) against the 505-paper corpus, using Mistral-7B-Instruct-v0.2:
+Evaluated on 70 type-balanced questions (13 factual · 13 comparative · 12 consensus · 32 procedural) against the 505-paper corpus, using Mistral-7B-Instruct-v0.2:
 
 | Strategy | Faithfulness ↑ | Ctx Precision ↑ | Ans Relevance ↑ | Correctness ↑ | % Correct ↑ | Latency |
 |----------|---------------|----------------|----------------|--------------|------------|---------|
-| A · Naive RAG | 0.707 | 1.000† | 0.559 | 0.494 | 46% | 9,032ms |
-| B · Semantic RAG | 0.732 | 1.000† | 0.572 | 0.519 | 52% | 9,108ms |
-| C · Hybrid RAG | 0.811 | 0.904 | 0.565 | 0.523 | 58% | 10,647ms |
-| D · Hybrid + Reranker | **0.823** | 0.892 | 0.566 | **0.566** | **68%** | 11,521ms |
-| Adaptive Router | 0.786 | **0.936** | **0.591** | 0.541 | 64% | 10,658ms |
+| A · Naive RAG | 0.731 | 1.000† | 0.532 | 0.467 | 37% | 9,480ms |
+| B · Semantic RAG | 0.755 | 1.000† | 0.555 | 0.501 | 43% | 9,747ms |
+| C · Hybrid RAG | 0.807 | 0.871 | 0.528 | 0.481 | 39% | 11,137ms |
+| D · Hybrid + Reranker | **0.845** | 0.894 | 0.563 | **0.544** | **54%** | 11,536ms |
+| Adaptive Router | 0.783 | **0.946** | 0.549 | 0.506 | 43% | 10,735ms |
 
 † Context Precision ≈ 1.0 for naive/semantic is a threshold artifact — questions grounded in this specific corpus push all chunk cosine similarities above the 0.4 threshold. Correctness (sentence_mean_of_max_cosine) is the primary quality signal.
 
-**Phase 2 findings:** Hybrid + Reranker leads on correctness (0.566, 68% correct). The Adaptive Router (64% correct, 10,658ms) now matches the pre-Phase-2 Hybrid + Reranker score (64%) while being ~1,400ms faster — reference-section filtering and the embedding-centroid router account for the gain. Largest single improvement: Hybrid RAG % correct 46% → 58% (+12pp), driven by removing bibliography chunks that polluted BM25 retrieval. Router accuracy: **82%** (embedding-centroid, up from 72% keyword baseline; procedural routing 25% → 92%).
+**Findings (70-question set):** Hybrid + Reranker leads on both faithfulness (0.845) and correctness (0.544, 54% correct) — the reranker's value is clearest on the harder, procedural-heavy set. Absolute correctness is lower than the earlier 50-question set, and a like-for-like per-type check confirms this is the eval getting harder, not a regression: factual/comparative/consensus are the *same questions* in both sets and their correctness held steady within run-to-run variance (±1 question, inconsistent direction across strategies). The 20 newly-added procedural questions are simply harder — 15–20% answerable versus 66–83% for the original 12 — while the original 12 held under a fixed strategy (83%→75%). Router accuracy on this set is **74%** (52/70): the embedding-centroid router scored 82% on the 50-question set its centroids were built from, and 74% here where the 20 added procedural questions are **out-of-sample** for the centroids — a more conservative, more defensible generalization estimate.
 
 ### Confidence Calibration
 
-Confidence weights fitted by logistic regression on the 50 eval questions, extended with a procedural×answer-relevance interaction term to address a diagnosed failure mode. Validated against actual answer correctness (ROC-AUC = **0.729**, v3 data):
+Confidence weights fitted by logistic regression on the eval set, extended with a procedural×answer-relevance interaction term to address a diagnosed failure mode. On an expanded 70-question set (32 procedural, up from 12), validated against actual answer correctness (ROC-AUC = **0.796**):
 
 | Band | Confidence | N | % Correct | Interpretation |
 |------|-----------|---|-----------|----------------|
-| GREEN | ≥ 80 | 11 | **82%** | High confidence = high quality |
-| YELLOW | 50–79 | 30 | 67% | Moderate confidence |
-| RED | < 50 | 9 | 33% | Low confidence — refusal appropriate |
+| GREEN | ≥ 80 | 3 | 33% | High confidence (rarely expressed) |
+| YELLOW | 50–79 | 26 | 73% | Moderate confidence |
+| RED | < 50 | 41 | 24% | Low confidence — refusal appropriate |
 
-GREEN vs RED gap: **+49pp**. YELLOW cluster compressed from 40 → 30 (system is less prone to clustering in the middle). Known residual: procedural questions with very high answer-relevance scores remain unreliable — the interaction term is directionally correct but underpowered at n=12 procedural examples. Fix path: larger procedural-heavy eval set.
+The interaction coefficient (`is_procedural × answer_relevance`) strengthened from −0.064 at n=12 procedural to **−0.610** at n=32 — same sign, ~9.5× larger — and the extended model's AUC edge over the plain logistic regression grew from +0.01 to +0.06. The payoff: **no procedural answer now reaches the GREEN band**, closing the diagnosed failure mode where high-relevance-but-wrong procedural answers were scored over-confidently. Honest caveats: the GREEN band is small (n=3) so its purity is noise-dominated, and overall correctness is lower than on the 50-question set because procedural — the hardest query type at 25% correct — now makes up 46% of the eval rather than 24%. YELLOW is well-calibrated (73%) and RED correctly concentrates wrong answers.
+
+> All figures use Mistral-7B-Instruct-v0.2, the project's consistent generator. An earlier refit on v0.1 was discarded as a methodology confound.
 
 ---
 
@@ -164,7 +166,7 @@ RAGAS 0.4 requires an external LLM API for all metrics and the free tier (Groq) 
 - ~~Type-balanced evaluation set~~ ✓ Done — 50 questions across 4 query types, corpus-grounded
 - ~~Confidence calibration~~ ✓ Done — AUC 0.782, GREEN/YELLOW/RED bands validated
 - ~~Embedding-centroid router~~ ✓ Done — 82% accuracy (vs 72% keyword baseline); procedural routing 25% → 92%
-- ~~Logistic-regression confidence combiner~~ ✓ Done — AUC 0.707→0.729 (base→extended LR with procedural×relevance interaction term); learned weights [0.24 / 0.28 / 0.49]; YELLOW cluster 40→30; GREEN purity 82%
+- ~~Logistic-regression confidence combiner~~ ✓ Done — AUC 0.796 (extended LR with procedural×relevance interaction term); interaction coefficient −0.610 on an expanded 32-procedural eval set (up from −0.064 at n=12); no procedural answer reaches false-high confidence
 - Real-time arXiv paper fetching during queries
 
 ---

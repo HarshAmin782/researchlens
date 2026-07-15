@@ -485,6 +485,25 @@ def load_calibration():
         return json.load(f)
 
 
+@st.cache_resource
+def load_router_and_confidence():
+    """Production centroid router + 4-feature extended LR confidence model (Action 3.4).
+    Returns (centroids, lr_bundle); either may be None if its file is missing, in which
+    case the Search tab falls back to keyword routing / the hand-weighted formula."""
+    centroids, lr_bundle = None, None
+    try:
+        with open(DATA_DIR / 'query_centroids.pkl', 'rb') as f:
+            centroids = pickle.load(f)
+    except Exception:
+        centroids = None
+    try:
+        with open(DATA_DIR / 'lr_confidence_model.pkl', 'rb') as f:
+            lr_bundle = pickle.load(f)
+    except Exception:
+        lr_bundle = None
+    return centroids, lr_bundle
+
+
 @st.cache_data
 def load_paper_urls():
     try:
@@ -553,6 +572,19 @@ def classify_query(query):
     return 'factual'
 
 
+def centroid_classify(query, embed_model, centroids):
+    """Nearest-centroid query type — the production router (Action 2.3/3.4), 74% out-of-sample
+    on the 70-question eval. Falls back to keyword classify_query if centroids are unavailable."""
+    if not centroids:
+        return classify_query(query)
+    q_emb = embed_model.encode(query, convert_to_numpy=True)
+    sims = {
+        qt: float(np.dot(q_emb, c) / (np.linalg.norm(q_emb) * np.linalg.norm(c) + 1e-9))
+        for qt, c in centroids.items()
+    }
+    return max(sims, key=sims.get)
+
+
 @st.cache_resource
 def get_groq_client():
     """Return a Groq client if a key is configured, else None (extractive fallback)."""
@@ -613,8 +645,10 @@ def extractive_answer(query, chunks, embed_model, max_sentences=3):
     return " ".join(sentences[i] for i in top)
 
 
-def compute_confidence(chunks, answer, answer2, embed_model, selected):
-    """3-signal confidence: retrieval + faithfulness + consistency. Returns (0-100, signals)."""
+def compute_confidence(query, chunks, answer, embed_model, selected, query_type, lr_bundle):
+    """4-feature extended-LR confidence (Action 3.4). Signal order matches the Kaggle model:
+    [retrieval_norm, faithfulness, answer_relevance, is_procedural × answer_relevance].
+    Falls back to the pre-3.4 hand-weighted formula if lr_bundle is None."""
     scores = [c['score'] for c in chunks]
     if selected == 'hybrid':
         max_rrf = 1/60 + 1/61
@@ -626,17 +660,23 @@ def compute_confidence(chunks, answer, answer2, embed_model, selected):
     ans_tokens = set(answer.lower().split())
     faithfulness = len(ans_tokens & ctx_tokens) / max(len(ans_tokens), 1)
 
-    consistency = None
-    if answer2:
-        e1 = embed_model.encode(answer)
-        e2 = embed_model.encode(answer2)
-        consistency = float(e1 @ e2 / (np.linalg.norm(e1) * np.linalg.norm(e2) + 1e-9))
+    qe = embed_model.encode(query)
+    ae = embed_model.encode(answer)
+    answer_relevance = float(qe @ ae / (np.linalg.norm(qe) * np.linalg.norm(ae) + 1e-9))
 
-    if consistency is not None:
-        conf = (retrieval * 0.4 + faithfulness * 0.3 + consistency * 0.3) * 100
+    is_proc = 1 if query_type == 'procedural' else 0
+
+    if lr_bundle is not None:
+        feats = [[retrieval, faithfulness, answer_relevance, is_proc * answer_relevance]]
+        conf = float(lr_bundle['model'].predict_proba(
+            lr_bundle['scaler'].transform(feats))[0, 1]) * 100
     else:
-        conf = (retrieval * 0.5 + faithfulness * 0.5) * 100
-    return int(round(conf)), {'retrieval': retrieval, 'faithfulness': faithfulness, 'consistency': consistency}
+        conf = (retrieval * 0.4 + faithfulness * 0.3 + answer_relevance * 0.3) * 100
+
+    return int(round(conf)), {
+        'retrieval': retrieval, 'faithfulness': faithfulness,
+        'answer_relevance': answer_relevance, 'is_proc': is_proc,
+    }
 
 
 def render_chunk(chunk, idx, paper_urls=None):
@@ -682,8 +722,8 @@ with st.sidebar:
     st.markdown("""
     <div style="font-size:0.7rem;color:#8B7355;line-height:2;font-family:'JetBrains Mono',monospace">
         Corpus · 505 arXiv papers<br>
-        Chunks · 14,500 fixed · 15,476 semantic<br>
-        Generator · Mistral-7B-Instruct<br>
+        Chunks · 8,933 fixed · 9,561 semantic<br>
+        Generator · Mistral-7B-Instruct-v0.2<br>
         Embeddings · all-MiniLM-L6-v2<br>
         NLI · bart-large-mnli
     </div>
@@ -704,8 +744,9 @@ with tab1:
     else:
         bm25_index, bm25_metadata, fixed_chunks, semantic_chunks, embed_model, fixed_col, sem_col = load_indexes()
         paper_urls = load_paper_urls()
+        centroids, lr_bundle = load_router_and_confidence()
 
-        query_type = classify_query(query)
+        query_type = centroid_classify(query, embed_model, centroids)
 
         st.markdown(f"""
         <div style="margin-bottom:1rem">
@@ -768,16 +809,14 @@ with tab1:
             with st.spinner("Composing an answer from the retrieved passages…"):
                 answer = groq_answer(query, results)
                 is_generated = answer is not None
-                if is_generated:
-                    answer2 = groq_answer(query, results, temperature=0.6)
-                else:
+                if not is_generated:
                     answer = extractive_answer(query, results, embed_model)
-                    answer2 = None
 
             if answer:
-                conf, signals = compute_confidence(results, answer, answer2, embed_model, selected)
-                bar_color = '#2D6A2D' if conf >= 70 else '#8B6914' if conf >= 45 else '#6B0000'
-                badge = 'High confidence' if conf >= 70 else 'Moderate confidence' if conf >= 45 else 'Low confidence'
+                conf, signals = compute_confidence(query, results, answer, embed_model,
+                                                   selected, query_type, lr_bundle)
+                bar_color = '#2D6A2D' if conf >= 80 else '#8B6914' if conf >= 50 else '#6B0000'
+                badge = 'High confidence' if conf >= 80 else 'Moderate confidence' if conf >= 50 else 'Low confidence'
                 source_note = ('Mistral-class LLM · grounded in retrieved passages'
                                if is_generated else
                                'Extractive — generation offline, key not set')
@@ -793,9 +832,10 @@ with tab1:
                 sig_parts = [
                     f"retrieval {signals['retrieval']:.2f}",
                     f"faithfulness {signals['faithfulness']:.2f}",
+                    f"answer-relevance {signals['answer_relevance']:.2f}",
                 ]
-                if signals['consistency'] is not None:
-                    sig_parts.append(f"consistency {signals['consistency']:.2f}")
+                if signals['is_proc']:
+                    sig_parts.append("procedural (interaction term applied)")
                 sig_line = " · ".join(sig_parts)
 
                 st.markdown(f"""
@@ -841,7 +881,7 @@ with tab2:
 
         st.markdown("""
         <div class="pull-quote">
-            Hybrid + Reranker leads on correctness (68%). Adaptive Router matches pre-Phase-2 Hybrid + Reranker (64%) at 1,400ms less latency. Routing accuracy: 82% (embedding-centroid) — up from 72% keyword baseline, itself corrected from a circular 100% on a self-authored test.
+            Hybrid + Reranker leads on faithfulness (0.845) and correctness (54%) on the expanded 70-question set. Routing accuracy: 74% out-of-sample (the 20 added procedural questions are out-of-sample for the centroids) — the embedding-centroid router scored 82% in-sample on the 50-question set it was built from, itself corrected from a circular 100% on a self-authored test. The 74% figure is reported as the headline to avoid that in-sample circularity.
         </div>
         """, unsafe_allow_html=True)
 
@@ -893,7 +933,7 @@ with tab2:
 
         # ── Calibration section ───────────────────────────────────────────────
         st.markdown('<div class="rule-double" style="margin-top:2.5rem"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="section-label" style="margin-bottom:0.8rem">Confidence Calibration · Action 2.1</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-label" style="margin-bottom:0.8rem">Confidence Calibration · Action 3.5</div>', unsafe_allow_html=True)
 
         try:
             cal = load_calibration()
@@ -928,12 +968,12 @@ with tab2:
 
             st.markdown(f"""
             <div class="footnote">
-                Confidence weights fitted by logistic regression on 50 eval questions (Action 2.1), extended with a
-                procedural×answer-relevance interaction term. AUC {cal['roc_auc']:.3f}: GREEN answers correct {pb['GREEN']['pct_correct']:.0f}% of the time,
-                RED correct {pb['RED']['pct_correct']:.0f}% — GREEN vs RED gap: +{pb['GREEN']['pct_correct'] - pb['RED']['pct_correct']:.0f}pp.<br>
-                Known residual: procedural questions with very high answer-relevance scores remain unreliable — the interaction
-                coefficient (−0.064) is directionally correct but underpowered at n=12 procedural examples (needs ~−0.649 to
-                fully cancel the effect). Fix path: larger procedural-heavy eval set.
+                Confidence weights fitted by logistic regression on an expanded 70-question eval set (32 procedural, up from 12; Action 3.5),
+                extended with a procedural×answer-relevance interaction term. AUC {cal['roc_auc']:.3f}: GREEN answers correct {pb['GREEN']['pct_correct']:.0f}% of the time
+                (n={pb['GREEN']['count']}), RED correct {pb['RED']['pct_correct']:.0f}% (n={pb['RED']['count']}).<br>
+                At n=32 procedural the interaction coefficient reached −0.610 (up from −0.064 at n=12), and no procedural answer now reaches
+                the GREEN band — the diagnosed over-confidence on high-relevance-but-wrong procedural answers is suppressed. Honest caveat:
+                the GREEN band is small (n={pb['GREEN']['count']}), so its purity is noise-dominated. All figures on Mistral-7B-Instruct-v0.2.
             </div>
             """, unsafe_allow_html=True)
 

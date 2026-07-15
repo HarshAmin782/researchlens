@@ -1,47 +1,47 @@
 [
   {
     "strategy": "A · Naive RAG",
-    "faithfulness": 0.707,
+    "faithfulness": 0.731,
     "context_precision": 1.0,
-    "answer_relevance": 0.559,
-    "correctness": 0.494,
-    "pct_correct": 46.0,
-    "latency_ms": 9032
+    "answer_relevance": 0.532,
+    "correctness": 0.467,
+    "pct_correct": 37.1,
+    "latency_ms": 9480
   },
   {
     "strategy": "B · Semantic RAG",
-    "faithfulness": 0.732,
+    "faithfulness": 0.755,
     "context_precision": 1.0,
-    "answer_relevance": 0.572,
-    "correctness": 0.519,
-    "pct_correct": 52.0,
-    "latency_ms": 9108
+    "answer_relevance": 0.555,
+    "correctness": 0.501,
+    "pct_correct": 42.9,
+    "latency_ms": 9747
   },
   {
     "strategy": "C · Hybrid RAG",
-    "faithfulness": 0.811,
-    "context_precision": 0.904,
-    "answer_relevance": 0.565,
-    "correctness": 0.523,
-    "pct_correct": 58.0,
-    "latency_ms": 10647
+    "faithfulness": 0.807,
+    "context_precision": 0.871,
+    "answer_relevance": 0.528,
+    "correctness": 0.481,
+    "pct_correct": 38.6,
+    "latency_ms": 11137
   },
   {
     "strategy": "D · Hybrid + Reranker",
-    "faithfulness": 0.823,
-    "context_precision": 0.892,
-    "answer_relevance": 0.566,
-    "correctness": 0.566,
-    "pct_correct": 68.0,
-    "latency_ms": 11521
+    "faithfulness": 0.845,
+    "context_precision": 0.894,
+    "answer_relevance": 0.563,
+    "correctness": 0.544,
+    "pct_correct": 54.3,
+    "latency_ms": 11536
   },
   {
     "strategy": "Adaptive Router",
-    "faithfulness": 0.786,
-    "context_precision": 0.936,
-    "answer_relevance": 0.591,
-    "correctness": 0.541,
-    "pct_correct": 64.0,
-    "latency_ms": 10658
+    "faithfulness": 0.783,
+    "context_precision": 0.946,
+    "answer_relevance": 0.549,
+    "correctness": 0.506,
+    "pct_correct": 42.9,
+    "latency_ms": 10735
   }
 ]
